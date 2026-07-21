@@ -1,0 +1,48 @@
+name: Deploy to Vultr
+
+on:
+  push:
+    branches: [prod]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "."
+          target: "/opt/portfolio"
+          rm: true
+
+      - name: Write production .env
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cat > /opt/portfolio/.env << 'ENVEOF'
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            CLIENT_ORIGIN=https://${{ secrets.DOMAIN }}
+            ENVEOF
+
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/portfolio
+            docker-compose down || true
+            docker-compose up -d --build
+            echo "Deployment complete"

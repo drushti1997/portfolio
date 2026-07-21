@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0a0a;
+  --accent: #6366f1;
+}
+
+body {
+  background-color: var(--bg);
+  color: #f9fafb;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent;
+  }
+}

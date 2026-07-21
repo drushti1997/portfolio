@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
 
@@ -12,5 +12,5 @@ app.use(express.json());
 app.use('/api/products', require('./routes/products'));
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));

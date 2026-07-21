@@ -2,7 +2,7 @@
   "name": "drushti-portfolio",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "dev": "npm install && npm install --prefix client && npm install --prefix server && docker-compose up -d postgres && concurrently -n \"client,server\" -c \"cyan,green\" \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
     "docker:up": "docker-compose up -d --build",
     "docker:down": "docker-compose down"
   },

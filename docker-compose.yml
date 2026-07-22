@@ -5,9 +5,9 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
-    container_name: portfolio_client
+    container_name: drish_portfolio_client
     ports:
-      - '80:80'
+      - '127.0.0.1:8081:80'
     depends_on:
       - server
     restart: unless-stopped
@@ -18,7 +18,7 @@ services:
     build:
       context: .
       dockerfile: server/Dockerfile
-    container_name: portfolio_server
+    container_name: drish_portfolio_server
     environment:
       PORT: 3001
       CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost}
@@ -34,7 +34,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: portfolio_postgres
+    container_name: drish_portfolio_postgres
     environment:
       POSTGRES_DB: portfolio
       POSTGRES_USER: portfolio_user
@@ -42,8 +42,6 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-    ports:
-      - '5432:5432'
     restart: unless-stopped
     networks:
       - portfolio_net

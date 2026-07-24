@@ -20,6 +20,14 @@ export default function Header() {
           >
             GitHub
           </a>
+          <a
+            href="https://www.linkedin.com/in/drushtichauhan/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            LinkedIn
+          </a>
         </nav>
       </div>
     </header>

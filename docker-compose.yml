@@ -24,6 +24,7 @@ services:
       CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost}
       POSTGRES_URL: postgresql://portfolio_user:${POSTGRES_PASSWORD}@postgres:5432/portfolio
       JWT_SECRET: ${JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     expose:
       - '3001'
     depends_on:

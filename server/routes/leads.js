@@ -3,7 +3,12 @@ const router = express.Router();
 const db = require('../db');
 const OpenAI = require('openai');
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is not configured');
+  }
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 router.get('/', async (req, res) => {
   try {
@@ -94,7 +99,7 @@ Score definitions:
 
 Return ONLY the JSON object.`;
 
-    const response = await client.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4o',
       max_tokens: 2048,
       messages: [{ role: 'user', content: prompt }],

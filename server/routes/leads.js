@@ -13,7 +13,7 @@ function getOpenAIClient() {
 router.get('/', async (req, res) => {
   try {
     const { rows } = await db.query(
-      'SELECT id, name, company, role, email, status, score, scored_at, created_at FROM leads ORDER BY created_at ASC'
+      'SELECT id, name, company, role, email, phone, source, status, score, scored_at, created_at FROM leads ORDER BY created_at ASC'
     );
     res.json(rows);
   } catch (err) {
@@ -137,6 +137,73 @@ Return ONLY the JSON object.`;
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'Scoring failed' });
+  }
+});
+
+router.post('/:id/chat', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ error: 'Message is required' });
+
+    const [leadResult, activitiesResult] = await Promise.all([
+      db.query('SELECT * FROM leads WHERE id = $1', [id]),
+      db.query('SELECT type, notes, occurred_at FROM lead_activities WHERE lead_id = $1 ORDER BY occurred_at ASC', [id]),
+    ]);
+    if (!leadResult.rows.length) return res.status(404).json({ error: 'Lead not found' });
+
+    const lead = leadResult.rows[0];
+    const activities = activitiesResult.rows;
+
+    const activityList = activities.map((a) => {
+      const date = new Date(a.occurred_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `- [${date}] ${a.type.replace(/_/g, ' ').toUpperCase()}: ${a.notes}`;
+    }).join('\n');
+
+    const latest = activities[activities.length - 1];
+    const latestText = latest
+      ? `[${new Date(latest.occurred_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}] ${latest.type.replace(/_/g, ' ')}: ${latest.notes}`
+      : 'No activities recorded yet';
+
+    const scoreSection = lead.score != null
+      ? `Score: ${lead.score}/100\nSummary: ${lead.score_breakdown?.summary || 'N/A'}`
+      : 'Not yet scored — use "Score with AI" to generate a score';
+
+    const nextSteps = lead.score_breakdown?.next_steps?.join('\n')
+      || (lead.next_steps ? lead.next_steps.split('\n').filter(Boolean).join('\n') : 'Score this lead to get recommended next steps');
+
+    const system = `You are an AI sales assistant for a roofing materials manufacturer. You have full context on the lead below. Answer questions concisely about their latest activity, score, or recommended next actions.
+
+LEAD
+Name: ${lead.name} | Company: ${lead.company} | Role: ${lead.role}
+Email: ${lead.email} | Phone: ${lead.phone || 'N/A'} | Source: ${lead.source || 'N/A'} | Status: ${lead.status}
+
+${scoreSection}
+
+NEXT STEPS
+${nextSteps}
+
+LATEST ACTIVITY
+${latestText}
+
+FULL HISTORY
+${activityList}`;
+
+    const response = await getOpenAIClient().chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 400,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: message },
+      ],
+    });
+
+    const reply = response.choices[0]?.message?.content;
+    if (!reply) throw new Error('No response from AI');
+    res.json({ reply });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message || 'Chat failed' });
   }
 });
 

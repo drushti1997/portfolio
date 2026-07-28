@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS leads (
   company         VARCHAR(255)  NOT NULL,
   role            VARCHAR(255),
   email           VARCHAR(255),
+  phone           VARCHAR(50),
+  source          VARCHAR(100),
   status          VARCHAR(50)   DEFAULT 'new',
   score           INTEGER,
   score_breakdown JSONB,
@@ -66,12 +68,12 @@ CREATE TABLE IF NOT EXISTS lead_activities (
 
 -- ─── Seed Leads ──────────────────────────────────────────────────────────────
 
-INSERT INTO leads (name, company, role, email, status) VALUES
-  ('James Holloway',  'Summit Commercial Builders',   'VP of Procurement',             'j.holloway@summitcommercial.com',  'warm'),
-  ('Rachel Torres',   'Meridian Construction Group',  'Director of Procurement',       'r.torres@meridiancg.com',          'hot'),
-  ('Daniel Park',     'Pacific Coast Development',    'Materials Sourcing Manager',    'daniel.park@paccoastdev.com',      'cold'),
-  ('Amanda Solis',    'Apex Building Corp',           'Chief Procurement Officer',     'a.solis@apexbuildingcorp.com',     'new'),
-  ('Kevin Walsh',     'Crestline Contractors Inc',    'Senior Estimator',              'k.walsh@crestlinecontractors.com', 'warm')
+INSERT INTO leads (name, company, role, email, phone, source, status) VALUES
+  ('James Holloway',  'Summit Commercial Builders',  'VP of Procurement',          'j.holloway@summitcommercial.com',  '(602) 555-0183', 'Cold Email',                  'warm'),
+  ('Rachel Torres',   'Meridian Construction Group', 'Director of Procurement',    'r.torres@meridiancg.com',          '(213) 555-0247', 'Permit Filing (AI Detected)', 'hot'),
+  ('Daniel Park',     'Pacific Coast Development',   'Materials Sourcing Manager', 'daniel.park@paccoastdev.com',      '(619) 555-0391', 'Cold Email',                  'cold'),
+  ('Amanda Solis',    'Apex Building Corp',          'Chief Procurement Officer',  'a.solis@apexbuildingcorp.com',     '(312) 555-0562', 'LinkedIn Outreach',           'new'),
+  ('Kevin Walsh',     'Crestline Contractors Inc',   'Senior Estimator',           'k.walsh@crestlinecontractors.com', '(720) 555-0814', 'Referral (Turner Roofing)',   'warm')
 ON CONFLICT DO NOTHING;
 
 -- ─── Seed Lead Activities ────────────────────────────────────────────────────

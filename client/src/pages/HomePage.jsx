@@ -15,7 +15,7 @@ export default function HomePage() {
             Products
           </h2>
           <p className="text-gray-400 max-w-lg">
-            AI tools built for modern sales teams. Click any product to explore or try it live.
+            AI tools built for roofing material manufacturers. Click any product to explore or try it live.
           </p>
         </div>
         <ProductGrid />

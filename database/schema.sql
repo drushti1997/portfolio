@@ -12,28 +12,28 @@ CREATE TABLE IF NOT EXISTS products (
 
 INSERT INTO products (name, slug, tagline, description, icon_emoji, tags) VALUES
   (
-    'AI Lead Generator',
+    'AI Project Lead Finder',
     'lead-generator',
-    'Identify and qualify high-intent leads automatically',
-    'Uses AI to analyze signals across multiple channels and surface the leads most likely to convert — so your sales team focuses effort where it counts most.',
+    'Surface active roofing projects before your competitors do',
+    'Scans permit filings, construction starts, and project databases to identify commercial and industrial roofing opportunities — so your reps reach the right contractor before the bid closes.',
     '🎯',
-    ARRAY['Lead Gen', 'Sales AI', 'Prospecting']
+    ARRAY['Lead Gen', 'Construction AI', 'Prospecting']
   ),
   (
-    'Sales Email Copilot',
-    'sales-email-copilot',
-    'AI-drafted outreach emails that actually get replies',
-    'Generates personalized cold emails tailored to each prospect''s role, industry, and pain points. Drafts in seconds, edits in one click, sends with confidence.',
-    '✉️',
-    ARRAY['Email', 'Outreach', 'Copywriting AI']
+    'Material Quote Copilot',
+    'quote-copilot',
+    'Spec-matched roofing material quotes generated in seconds',
+    'Generates accurate, code-compliant quotes for TPO, EPDM, metal roofing, and modified bitumen systems based on project size, building type, and local requirements. Drafts in seconds, ready to send in one click.',
+    '📋',
+    ARRAY['Quoting', 'Estimating', 'Sales AI']
   ),
   (
-    'Pipeline Intelligence',
-    'pipeline-intelligence',
-    'Know which deals will close before your CRM does',
-    'Analyzes deal activity, engagement patterns, and historical win/loss data to forecast pipeline health and flag at-risk opportunities before it''s too late.',
+    'Project Pipeline Intelligence',
+    'project-intelligence',
+    'Know which roofing contracts will close before your CRM does',
+    'Analyzes bid activity, contractor engagement, and permit timelines to forecast which projects are most likely to close — and flags at-risk deals before deadlines pass.',
     '📊',
-    ARRAY['Pipeline', 'Forecasting', 'CRM AI']
+    ARRAY['Pipeline', 'Forecasting', 'Project AI']
   )
 ON CONFLICT (slug) DO NOTHING;
 
@@ -67,78 +67,79 @@ CREATE TABLE IF NOT EXISTS lead_activities (
 -- ─── Seed Leads ──────────────────────────────────────────────────────────────
 
 INSERT INTO leads (name, company, role, email, status) VALUES
-  ('Sarah Chen',    'TechScale Inc',       'VP of Sales',                 'sarah.chen@techscale.io',      'warm'),
-  ('Marcus Johnson','Growth Dynamics',     'Sales Director',              'm.johnson@growthdynamics.com', 'hot'),
-  ('Priya Patel',   'Finvault',            'Head of Business Development','priya@finvault.co',            'cold'),
-  ('David Okonkwo', 'MegaCorp Enterprises','Enterprise Account Executive','d.okonkwo@megacorp.com',       'new'),
-  ('Lisa Nakamura', 'RocketFuel',          'Chief Revenue Officer',       'lisa.n@rocketfuel.io',         'warm')
+  ('James Holloway',  'Summit Commercial Builders',   'VP of Procurement',             'j.holloway@summitcommercial.com',  'warm'),
+  ('Rachel Torres',   'Meridian Construction Group',  'Director of Procurement',       'r.torres@meridiancg.com',          'hot'),
+  ('Daniel Park',     'Pacific Coast Development',    'Materials Sourcing Manager',    'daniel.park@paccoastdev.com',      'cold'),
+  ('Amanda Solis',    'Apex Building Corp',           'Chief Procurement Officer',     'a.solis@apexbuildingcorp.com',     'new'),
+  ('Kevin Walsh',     'Crestline Contractors Inc',    'Senior Estimator',              'k.walsh@crestlinecontractors.com', 'warm')
 ON CONFLICT DO NOTHING;
 
 -- ─── Seed Lead Activities ────────────────────────────────────────────────────
 
--- Sarah Chen (lead 1) — warm, demo attended, proposal sent
+-- James Holloway (lead 1) — warm, received samples, reviewing proposal
 INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
 SELECT l.id, a.type, a.notes, a.occurred_at
 FROM leads l
 JOIN (VALUES
-  ('email_sent',  'Initial outreach: introduced our AI lead-scoring platform, highlighted ROI stats.',          NOW() - INTERVAL '14 days'),
-  ('email_reply', 'Sarah replied — interested, asked for product overview deck and pricing ballpark.',          NOW() - INTERVAL '12 days'),
-  ('follow_up',   'Sent product deck + case study (MidWest Insurance, 3× pipeline efficiency).',               NOW() - INTERVAL '10 days'),
-  ('email_reply', 'Loved the case study. Wants to schedule a live demo with her ops manager.',                 NOW() - INTERVAL '8 days'),
-  ('call',        '15-min discovery call. Pain points: manual lead qualification eating 40% of rep time. 3 attendees confirmed for demo.', NOW() - INTERVAL '6 days'),
-  ('demo',        'Full 45-min product demo. CMO joined unexpectedly — very positive reaction. Lots of questions about CRM integrations.', NOW() - INTERVAL '4 days'),
-  ('follow_up',   'Sent proposal with enterprise tier pricing and integration roadmap. Requested feedback within a week.',               NOW() - INTERVAL '2 days')
-) AS a(type, notes, occurred_at) ON l.name = 'Sarah Chen';
+  ('email_sent',     'Cold outreach introducing our commercial roofing product line — highlighted our TPO and EPDM systems for flat commercial roofs.',                                          NOW() - INTERVAL '18 days'),
+  ('email_reply',    'James replied within a day — they have a 40,000 sq ft warehouse re-roof coming up in Q3 and are evaluating material suppliers.',                                         NOW() - INTERVAL '16 days'),
+  ('call',           '20-min discovery call. Project is a distribution center in Phoenix. Specs require Class A fire rating and 20-year warranty. Budget approved.',                          NOW() - INTERVAL '13 days'),
+  ('sample_request', 'James requested physical samples of our 60-mil TPO membrane and cover board insulation. Shipped via FedEx overnight.',                                                   NOW() - INTERVAL '11 days'),
+  ('email_reply',    'Samples received. James said the TPO quality looks strong. Wants formal quote with per-square pricing, delivery lead times, and warranty terms.',                        NOW() - INTERVAL '8 days'),
+  ('quote_sent',     'Sent full material quote: 40,000 sq ft TPO system at $4.20/sq ft installed materials, 4-week lead time, 20-year manufacturer warranty included.',                       NOW() - INTERVAL '5 days'),
+  ('follow_up',      'Check-in on the quote. James said it''s under internal review with their project manager. Decision expected by end of the month.',                                       NOW() - INTERVAL '2 days')
+) AS a(type, notes, occurred_at) ON l.name = 'James Holloway';
 
--- Marcus Johnson (lead 2) — hot, proposal stage, budget confirmed
+-- Rachel Torres (lead 2) — hot, verbal commitment, finalizing PO
 INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
 SELECT l.id, a.type, a.notes, a.occurred_at
 FROM leads l
 JOIN (VALUES
-  ('email_sent',  'Cold outreach referencing a LinkedIn post Marcus made about sales efficiency.',              NOW() - INTERVAL '21 days'),
-  ('call',        '20-min intro call. Marcus runs a 15-person SDR team. Frustrated with their current lead-scoring spreadsheet.', NOW() - INTERVAL '18 days'),
-  ('demo',        'Product demo — Marcus was highly engaged, asked about bulk import and API access. Team of 4 on the call.', NOW() - INTERVAL '14 days'),
-  ('email_reply', 'Detailed follow-up questions about Salesforce integration depth and data residency.',        NOW() - INTERVAL '12 days'),
-  ('follow_up',   'Sent technical integration docs and SOC 2 Type II report.',                                 NOW() - INTERVAL '10 days'),
-  ('email_reply', 'Integration docs look good. His CTO signed off. Wants to see pricing for 20 seats.',       NOW() - INTERVAL '7 days'),
-  ('call',        '30-min pricing call. Budget approved at $2.4k/mo. Negotiating on onboarding support scope.',NOW() - INTERVAL '5 days'),
-  ('follow_up',   'Sent final proposal with two onboarding options. Marcus said he expects to sign by end of week.', NOW() - INTERVAL '2 days')
-) AS a(type, notes, occurred_at) ON l.name = 'Marcus Johnson';
+  ('email_sent',     'Outreach targeting Meridian''s new industrial park project spotted in local permit filings — 6 buildings, estimated 120,000 sq ft of flat roofing.',                    NOW() - INTERVAL '25 days'),
+  ('email_reply',    'Rachel replied same day. They''re in early procurement for the industrial park. She''s evaluating 3 suppliers. Asked for product specs and references.',                 NOW() - INTERVAL '23 days'),
+  ('call',           '30-min intro call. Project spans 6 warehouse buildings in two phases. Phase 1 is 3 buildings (approx 60,000 sq ft) starting in 8 weeks.',                              NOW() - INTERVAL '20 days'),
+  ('sample_request', 'Sent full sample kit: TPO, EPDM, and two-ply modified bitumen. Also included case study from a similar industrial park project in Dallas.',                             NOW() - INTERVAL '17 days'),
+  ('meeting',        'In-person meeting at Meridian HQ. Rachel''s team tested the samples in their materials lab. Metal roofing eliminated early due to cost. TPO vs EPDM shortlisted.',     NOW() - INTERVAL '13 days'),
+  ('quote_sent',     'Submitted competitive quote for Phase 1: 60,000 sq ft EPDM system at $3.85/sq ft materials. Included volume pricing schedule for Phase 2.',                            NOW() - INTERVAL '9 days'),
+  ('email_reply',    'Rachel confirmed our quote is the strongest on price and warranty. Their PM prefers EPDM for the climate. She''s recommending us internally.',                          NOW() - INTERVAL '6 days'),
+  ('call',           'Brief call — legal is reviewing the supply agreement. Rachel expects PO issued within the week. Asked about rush delivery options for Phase 1 start date.',             NOW() - INTERVAL '3 days'),
+  ('follow_up',      'Sent revised delivery schedule confirming we can hit Phase 1 start. Rachel said the contract is with her CPO for signature.',                                           NOW() - INTERVAL '1 day')
+) AS a(type, notes, occurred_at) ON l.name = 'Rachel Torres';
 
--- Priya Patel (lead 3) — cold, no-show, gone quiet
+-- Daniel Park (lead 3) — cold, no-show, gone quiet
 INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
 SELECT l.id, a.type, a.notes, a.occurred_at
 FROM leads l
 JOIN (VALUES
-  ('email_sent',  'Initial outreach targeting fintech BDRs. Personalized to Finvault''s Series B announcement.',NOW() - INTERVAL '28 days'),
-  ('email_reply', 'Short reply: "Looks interesting, might be relevant for Q3. Send more info."',               NOW() - INTERVAL '25 days'),
-  ('follow_up',   'Sent detailed one-pager and offered a 20-min demo slot.',                                   NOW() - INTERVAL '21 days'),
-  ('no_show',     'Demo scheduled for 2pm — Priya did not join. No message sent.',                             NOW() - INTERVAL '14 days'),
-  ('follow_up',   'Sent reschedule email: "No worries, happy to find a better time."',                         NOW() - INTERVAL '10 days'),
-  ('follow_up',   'Second reschedule attempt. No response yet.',                                               NOW() - INTERVAL '5 days')
-) AS a(type, notes, occurred_at) ON l.name = 'Priya Patel';
+  ('email_sent',     'Cold outreach to Pacific Coast Development. Targeted their upcoming mixed-use commercial project announced in the local business journal.',                              NOW() - INTERVAL '30 days'),
+  ('email_reply',    'Short reply from Daniel: "We''re in early stages, will keep you in mind for Q4 procurement." No commitment.',                                                           NOW() - INTERVAL '27 days'),
+  ('follow_up',      'Sent a one-page overview of our commercial roofing systems and offered a 15-minute product call.',                                                                      NOW() - INTERVAL '21 days'),
+  ('no_show',        'Call scheduled for 2pm — Daniel did not join. No message or reschedule request.',                                                                                      NOW() - INTERVAL '14 days'),
+  ('follow_up',      'Reschedule email: "No worries, happy to find a better time. We also have a new energy-efficient TPO line that may align with your sustainability goals."',             NOW() - INTERVAL '10 days'),
+  ('follow_up',      'Second follow-up with a brief roofing cost calculator. No response yet.',                                                                                              NOW() - INTERVAL '4 days')
+) AS a(type, notes, occurred_at) ON l.name = 'Daniel Park';
 
--- David Okonkwo (lead 4) — new, early stage
+-- Amanda Solis (lead 4) — new, very early stage
 INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
 SELECT l.id, a.type, a.notes, a.occurred_at
 FROM leads l
 JOIN (VALUES
-  ('email_sent',  'Initial cold email to enterprise segment. Highlighted our Fortune 500 customer logos.',     NOW() - INTERVAL '5 days'),
-  ('email_reply', 'David replied: "We''ve been evaluating tools in this space. Can you share more on your enterprise tier?"', NOW() - INTERVAL '3 days'),
-  ('follow_up',   'Sent enterprise overview deck and offered an intro call with our enterprise team.',         NOW() - INTERVAL '1 day')
-) AS a(type, notes, occurred_at) ON l.name = 'David Okonkwo';
+  ('email_sent',     'Cold outreach to Apex Building Corp after seeing their Series B funding announcement. Positioned our enterprise-tier roofing supply program for high-volume builders.',NOW() - INTERVAL '5 days'),
+  ('email_reply',    'Amanda replied: "We manage procurement for 12 active commercial sites. Can you share your product catalog and bulk pricing tiers?"',                                    NOW() - INTERVAL '3 days'),
+  ('follow_up',      'Sent full product catalog, bulk pricing tiers, and an intro to our dedicated account manager program for high-volume clients. Offered a discovery call.',              NOW() - INTERVAL '1 day')
+) AS a(type, notes, occurred_at) ON l.name = 'Amanda Solis';
 
--- Lisa Nakamura (lead 5) — warm, in budget approval, high intent
+-- Kevin Walsh (lead 5) — warm, referral, sample stage
 INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
 SELECT l.id, a.type, a.notes, a.occurred_at
 FROM leads l
 JOIN (VALUES
-  ('email_sent',  'Outreach via mutual LinkedIn connection (Jake from TechCrunch). Warm intro angle.',         NOW() - INTERVAL '22 days'),
-  ('email_reply', 'Lisa replied within 2 hours — "Jake speaks highly of you. Let''s talk."',                  NOW() - INTERVAL '20 days'),
-  ('call',        '30-min exploratory call. Lisa oversees 25 AEs. Key pain: reps chasing wrong leads, forecast accuracy at 60%.', NOW() - INTERVAL '16 days'),
-  ('demo',        'Deep-dive demo — Lisa took notes throughout. Loved the AI reasoning transparency. Brought in Head of RevOps.', NOW() - INTERVAL '10 days'),
-  ('email_reply', 'Internal alignment happening. Team loves it. Lisa asked for a security & compliance questionnaire.', NOW() - INTERVAL '8 days'),
-  ('follow_up',   'Sent security questionnaire and asked if they need SSO support (we have it).',              NOW() - INTERVAL '5 days'),
-  ('email_reply', 'Questionnaire filled out. Budget approval in progress — Lisa expects decision next week.',  NOW() - INTERVAL '3 days'),
-  ('follow_up',   'Sent completed security docs. Offered to arrange a call with our CSM to discuss onboarding timeline.', NOW() - INTERVAL '1 day')
-) AS a(type, notes, occurred_at) ON l.name = 'Lisa Nakamura';
+  ('email_sent',     'Warm outreach via referral from Marcus at Turner Roofing who has been a client for 2 years. Kevin runs estimating for Crestline''s commercial division.',              NOW() - INTERVAL '22 days'),
+  ('email_reply',    'Kevin replied quickly — "Marcus speaks highly of your lead times and warranty support. We''re pricing a 25,000 sq ft modified bitumen re-roof for a strip mall."',   NOW() - INTERVAL '20 days'),
+  ('call',           '25-min discovery call. Project is a 1970s strip mall with aging BUR system. Kevin wants to switch to modified bitumen. Timeline: material delivery needed in 6 weeks.',NOW() - INTERVAL '16 days'),
+  ('sample_request', 'Kevin requested samples of our SBS modified bitumen cap sheet and base sheet. Also asked for our installation guide for his crew.',                                    NOW() - INTERVAL '13 days'),
+  ('email_reply',    'Samples looked good. Kevin confirmed the cap sheet granule texture matches what the building owner specified. Requested a formal quote.',                              NOW() - INTERVAL '9 days'),
+  ('quote_sent',     'Sent quote for 25,000 sq ft SBS modified bitumen system: $3.10/sq ft materials, 3-week lead time, including fasteners and primer.',                                   NOW() - INTERVAL '6 days'),
+  ('site_visit',     'Kevin invited us to walk the strip mall roof with the building owner. Confirmed scope. Owner asked about cool-roof coating options on top of the mod-bit system.',    NOW() - INTERVAL '3 days'),
+  ('follow_up',      'Sent updated quote including optional cool-roof coating add-on (+$0.45/sq ft). Kevin said he''s presenting both options to the owner this week.',                     NOW() - INTERVAL '1 day')
+) AS a(type, notes, occurred_at) ON l.name = 'Kevin Walsh';

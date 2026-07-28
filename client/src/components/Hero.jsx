@@ -17,7 +17,7 @@ export default function Hero() {
       <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-medium mb-8">
           <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-          Sales Enablement AI
+          Roofing & Construction AI
         </div>
 
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
@@ -26,8 +26,8 @@ export default function Hero() {
         </h1>
 
         <p className="text-lg sm:text-xl text-gray-400 leading-relaxed mb-10 max-w-xl mx-auto">
-          I build AI products that supercharge sales teams — from finding the right leads
-          to closing deals faster.
+          I build AI tools that help roofing material manufacturers find more contractors,
+          generate faster quotes, and close bigger deals.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

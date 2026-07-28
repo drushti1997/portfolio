@@ -64,7 +64,7 @@ router.post('/:id/score', async (req, res) => {
       })
       .join('\n');
 
-    const prompt = `You are an expert Sales Development Representative (SDR) coach analyzing lead quality. Score this lead and recommend next steps.
+    const prompt = `You are an expert construction industry sales coach analyzing lead quality for a roofing materials manufacturer. Our customers are general contractors, commercial builders, and construction companies purchasing TPO, EPDM, metal roofing, and modified bitumen systems. Score this lead and recommend next steps.
 
 LEAD PROFILE
 Name: ${lead.name}
@@ -91,8 +91,8 @@ Analyze this lead's history and return a JSON object with EXACTLY this structure
 }
 
 Score definitions:
-- 80-100: Hot — ready to close, prioritize immediately
-- 60-79: Warm — strong signals, active nurturing required
+- 80-100: Hot — ready to order, prioritize immediately
+- 60-79: Warm — strong signals, active follow-up required
 - 40-59: Lukewarm — some interest but obstacles present
 - 20-39: Cold — minimal engagement, low conversion probability
 - 0-19: Dead — re-engage only if pipeline is empty

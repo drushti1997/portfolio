@@ -17,6 +17,9 @@ const ACTIVITY_ICONS = {
   no_show:          { icon: '🚫', label: 'No-show',          color: 'text-red-400' },
   linkedin_message: { icon: '💼', label: 'LinkedIn',         color: 'text-sky-400' },
   meeting:          { icon: '🤝', label: 'Meeting',          color: 'text-teal-400' },
+  site_visit:       { icon: '🏗️', label: 'Site Visit',       color: 'text-orange-400' },
+  sample_request:   { icon: '📦', label: 'Sample Request',   color: 'text-cyan-400' },
+  quote_sent:       { icon: '📋', label: 'Quote Sent',       color: 'text-violet-400' },
 };
 
 function ScoreRing({ score }) {

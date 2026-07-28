@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import LeadGeneratorApp from '../components/apps/LeadGeneratorApp';
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -95,8 +96,7 @@ export default function ProductPage() {
             {/* App area */}
             {product.status === 'live' ? (
               <div className="rounded-xl border border-gray-800 bg-surface p-8 min-h-96">
-                {/* Product app renders here */}
-                <p className="text-gray-500 text-sm text-center mt-32">App content loads here</p>
+                {product.slug === 'lead-generator' && <LeadGeneratorApp />}
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-gray-700 bg-surface/50 p-12 text-center">

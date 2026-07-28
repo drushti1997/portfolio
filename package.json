@@ -2,8 +2,9 @@
   "name": "drushti-portfolio",
   "private": true,
   "scripts": {
-    "dev": "npm install && npm install --prefix client && npm install --prefix server && concurrently -n \"client,server\" -c \"cyan,green\" \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "dev": "brew services start postgresql@16 2>/dev/null; pkill -f 'node.*server.js' 2>/dev/null; pkill -f 'vite' 2>/dev/null; sleep 1; npm install && npm install --prefix client && npm install --prefix server && concurrently -n \"client,server\" -c \"cyan,green\" \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
     "db:setup": "export PATH=\"/opt/homebrew/opt/postgresql@16/bin:$PATH\" && psql postgres -c \"CREATE USER portfolio_user WITH PASSWORD 'localdev123';\" 2>/dev/null; psql postgres -c \"CREATE DATABASE portfolio OWNER portfolio_user;\" 2>/dev/null; psql portfolio -U portfolio_user -f database/schema.sql",
+    "kill": "lsof -nP -iTCP:3001,5173 -sTCP:LISTEN | awk 'NR>1{print $2}' | xargs kill -9 2>/dev/null || true",
     "docker:up": "docker compose up -d --build",
     "docker:down": "docker compose down"
   },

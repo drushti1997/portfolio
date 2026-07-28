@@ -33,6 +33,7 @@ jobs:
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             CLIENT_ORIGIN=https://${{ secrets.DOMAIN }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             ENVEOF
 
       - name: Deploy with Docker Compose

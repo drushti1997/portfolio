@@ -24,9 +24,9 @@ export default function ProductGrid() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-56 rounded-xl bg-surface border border-gray-800 animate-pulse" />
+          <div key={i} className="h-56 rounded-xl bg-white border border-wire animate-pulse" />
         ))}
       </div>
     );
@@ -34,15 +34,15 @@ export default function ProductGrid() {
 
   if (error) {
     return (
-      <div className="text-center py-16 text-gray-500">
+      <div className="py-12 text-ash text-sm">
         <p>Could not load products. Make sure the server is running.</p>
-        <code className="text-xs text-gray-600 mt-2 block">{error}</code>
+        <code className="text-xs text-ash/50 mt-1 block">{error}</code>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

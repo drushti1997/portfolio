@@ -4,7 +4,7 @@ const STATUS_STYLES = {
   hot:       'bg-red-500/10 text-red-400 border-red-500/20',
   warm:      'bg-amber-500/10 text-amber-400 border-amber-500/20',
   cold:      'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  new:       'bg-gray-700/50 text-gray-400 border-gray-700',
+  new:       'bg-ember-up/50 text-dust border-ember-up',
   converted: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
 };
 
@@ -13,7 +13,7 @@ const ACTIVITY_ICONS = {
   email_reply:      { icon: '📩', label: 'Email Reply',    color: 'text-emerald-400' },
   call:             { icon: '📞', label: 'Call',           color: 'text-purple-400' },
   follow_up:        { icon: '🔄', label: 'Follow-up',      color: 'text-amber-400' },
-  demo:             { icon: '🖥️', label: 'Demo',           color: 'text-indigo-400' },
+  demo:             { icon: '🖥️', label: 'Demo',           color: 'text-copper' },
   no_show:          { icon: '🚫', label: 'No-show',        color: 'text-red-400' },
   linkedin_message: { icon: '💼', label: 'LinkedIn',       color: 'text-sky-400' },
   meeting:          { icon: '🤝', label: 'Meeting',        color: 'text-teal-400' },
@@ -27,8 +27,8 @@ const ACTIVITY_ICONS = {
 function Field({ label, value }) {
   return (
     <div>
-      <p className="text-xs text-gray-500 mb-0.5 uppercase tracking-wide">{label}</p>
-      <p className="text-sm text-white">{value || '—'}</p>
+      <p className="text-xs text-dust/60 mb-0.5 uppercase tracking-wide">{label}</p>
+      <p className="text-sm text-chalk">{value || '—'}</p>
     </div>
   );
 }
@@ -41,26 +41,26 @@ function ScoreRing({ score }) {
   return (
     <div className="flex flex-col items-center gap-1">
       <svg width="96" height="96" viewBox="0 0 96 96">
-        <circle cx="48" cy="48" r={radius} fill="none" stroke="#1f2937" strokeWidth="8" />
+        <circle cx="48" cy="48" r={radius} fill="none" stroke="#231E16" strokeWidth="8" />
         <circle cx="48" cy="48" r={radius} fill="none" stroke={color} strokeWidth="8"
           strokeDasharray={`${filled} ${circumference}`} strokeLinecap="round"
           transform="rotate(-90 48 48)" />
         <text x="48" y="53" textAnchor="middle" fontSize="20" fontWeight="700" fill={color}>{score}</text>
       </svg>
-      <span className="text-xs text-gray-500">AI Score</span>
+      <span className="text-xs text-dust/60">AI Score</span>
     </div>
   );
 }
 
 function FactorBar({ label, score }) {
-  const color = score >= 80 ? 'bg-red-400' : score >= 60 ? 'bg-amber-400' : score >= 40 ? 'bg-blue-400' : 'bg-gray-600';
+  const color = score >= 80 ? 'bg-red-400' : score >= 60 ? 'bg-amber-400' : score >= 40 ? 'bg-blue-400' : 'bg-dust/40';
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-gray-400 capitalize">{label.replace(/_/g, ' ')}</span>
-        <span className="text-gray-300">{score}</span>
+        <span className="text-dust capitalize">{label.replace(/_/g, ' ')}</span>
+        <span className="text-chalk/70">{score}</span>
       </div>
-      <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-ember-up rounded-full overflow-hidden">
         <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: `${score}%` }} />
       </div>
     </div>
@@ -114,23 +114,23 @@ function Chatbot({ lead }) {
   return (
     <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-3">
       {open && (
-        <div className="w-80 rounded-xl border border-gray-700 bg-gray-900 shadow-2xl flex flex-col" style={{ height: 420 }}>
-          <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between flex-shrink-0">
+        <div className="w-80 rounded-xl border border-ember-up bg-ember shadow-2xl flex flex-col" style={{ height: 420 }}>
+          <div className="px-4 py-3 border-b border-ember-up flex items-center justify-between flex-shrink-0">
             <div>
-              <p className="text-sm font-semibold text-white">AI Lead Assistant</p>
+              <p className="text-sm font-semibold text-chalk">AI Lead Assistant</p>
               {lead
-                ? <p className="text-xs text-gray-500">{lead.name} · {lead.company}</p>
-                : <p className="text-xs text-gray-600">No lead selected</p>
+                ? <p className="text-xs text-dust/60">{lead.name} · {lead.company}</p>
+                : <p className="text-xs text-dust/40">No lead selected</p>
               }
             </div>
-            <button onClick={() => setOpen(false)} className="text-gray-600 hover:text-gray-400 text-xl leading-none">×</button>
+            <button onClick={() => setOpen(false)} className="text-dust/40 hover:text-dust text-xl leading-none">×</button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${
-                  m.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-300'
+                  m.role === 'user' ? 'bg-copper text-coal' : 'bg-ember-up text-chalk/80'
                 }`}>
                   {m.content}
                 </div>
@@ -138,10 +138,10 @@ function Chatbot({ lead }) {
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-gray-800 rounded-xl px-4 py-3">
+                <div className="bg-ember-up rounded-xl px-4 py-3">
                   <span className="flex gap-1.5">
                     {[0, 150, 300].map(d => (
-                      <span key={d} className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }} />
+                      <span key={d} className="w-1.5 h-1.5 bg-dust/40 rounded-full animate-bounce" style={{ animationDelay: `${d}ms` }} />
                     ))}
                   </span>
                 </div>
@@ -150,7 +150,7 @@ function Chatbot({ lead }) {
             <div ref={bottomRef} />
           </div>
 
-          <div className="px-3 py-3 border-t border-gray-800 flex-shrink-0">
+          <div className="px-3 py-3 border-t border-ember-up flex-shrink-0">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -159,12 +159,12 @@ function Chatbot({ lead }) {
                 onKeyDown={e => e.key === 'Enter' && send()}
                 placeholder={lead ? 'Ask about this lead…' : 'Select a lead first'}
                 disabled={!lead || loading}
-                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 disabled:opacity-40 transition-colors"
+                className="flex-1 bg-ember-up border border-ember-up rounded-lg px-3 py-2 text-sm text-chalk placeholder-dust/40 focus:outline-none focus:border-copper disabled:opacity-40 transition-colors"
               />
               <button
                 onClick={send}
                 disabled={!lead || !input.trim() || loading}
-                className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-white text-sm transition-colors"
+                className="px-3 py-2 bg-copper hover:bg-copper/90 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-coal text-sm transition-colors"
               >
                 ↑
               </button>
@@ -175,7 +175,7 @@ function Chatbot({ lead }) {
 
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-12 h-12 bg-indigo-600 hover:bg-indigo-500 rounded-full shadow-xl flex items-center justify-center text-white transition-colors"
+        className="w-12 h-12 bg-copper hover:bg-copper/90 rounded-full shadow-xl flex items-center justify-center text-coal transition-colors"
         title="AI Lead Assistant"
       >
         {open ? '×' : '💬'}
@@ -191,17 +191,17 @@ function LeadList({ leads, loading, onSelect, sortAlpha, onToggleSort }) {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-bold text-white">Leads</h2>
+          <h2 className="font-display font-bold text-chalk text-2xl">Leads</h2>
           {!loading && (
-            <span className="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full">{leads.length}</span>
+            <span className="text-xs bg-ember-up text-dust px-2 py-0.5 rounded-full">{leads.length}</span>
           )}
         </div>
         <button
           onClick={onToggleSort}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
             sortAlpha
-              ? 'border-indigo-500/50 bg-indigo-500/10 text-indigo-400'
-              : 'border-gray-700 text-gray-500 hover:text-gray-300 hover:border-gray-600'
+              ? 'border-copper/50 bg-copper/10 text-copper'
+              : 'border-ember-up text-dust hover:text-chalk/70 hover:border-dust/30'
           }`}
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,12 +214,12 @@ function LeadList({ leads, loading, onSelect, sortAlpha, onToggleSort }) {
       {loading ? (
         <div className="space-y-2">
           {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="h-16 bg-gray-800/50 rounded-xl animate-pulse" />
+            <div key={i} className="h-16 bg-ember-up/50 rounded-xl animate-pulse" />
           ))}
         </div>
       ) : (
         <div>
-          <div className="grid px-4 py-2 text-xs text-gray-600 font-medium uppercase tracking-wider"
+          <div className="grid px-4 py-2 text-xs text-dust/50 font-medium uppercase tracking-wider"
             style={{ gridTemplateColumns: '2fr 2fr 2fr 1fr 60px' }}>
             <span>Name</span>
             <span>Company</span>
@@ -232,12 +232,12 @@ function LeadList({ leads, loading, onSelect, sortAlpha, onToggleSort }) {
               <button
                 key={lead.id}
                 onClick={() => onSelect(lead)}
-                className="w-full grid items-center px-4 py-3.5 rounded-xl border border-gray-800 hover:border-gray-600 bg-gray-900/30 hover:bg-gray-800/40 text-left transition-all"
+                className="w-full grid items-center px-4 py-3.5 rounded-xl border border-ember-up hover:border-dust/30 bg-ember/40 hover:bg-ember-up/40 text-left transition-all"
                 style={{ gridTemplateColumns: '2fr 2fr 2fr 1fr 60px' }}
               >
-                <span className="text-sm font-medium text-white">{lead.name}</span>
-                <span className="text-sm text-gray-400 truncate pr-4">{lead.company}</span>
-                <span className="text-sm text-gray-500 truncate pr-4">{lead.role}</span>
+                <span className="text-sm font-medium text-chalk">{lead.name}</span>
+                <span className="text-sm text-dust truncate pr-4">{lead.company}</span>
+                <span className="text-sm text-dust/60 truncate pr-4">{lead.role}</span>
                 <span>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${STATUS_STYLES[lead.status] || STATUS_STYLES.new}`}>
                     {lead.status}
@@ -246,7 +246,7 @@ function LeadList({ leads, loading, onSelect, sortAlpha, onToggleSort }) {
                 <span className={`text-right text-xs font-bold ${
                   lead.score != null
                     ? lead.score >= 80 ? 'text-red-400' : lead.score >= 60 ? 'text-amber-400' : 'text-blue-400'
-                    : 'text-gray-700'
+                    : 'text-dust/30'
                 }`}>
                   {lead.score != null ? lead.score : '—'}
                 </span>
@@ -299,7 +299,7 @@ function LeadDetail({ leadSummary, onBack }) {
     <div className="space-y-6">
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-gray-500 hover:text-gray-300 text-sm transition-colors"
+        className="flex items-center gap-1.5 text-dust hover:text-chalk text-sm transition-colors"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
@@ -309,9 +309,9 @@ function LeadDetail({ leadSummary, onBack }) {
 
       {loading ? (
         <div className="space-y-4 animate-pulse">
-          <div className="h-8 bg-gray-800 rounded w-1/3" />
-          <div className="h-32 bg-gray-800 rounded" />
-          <div className="h-48 bg-gray-800 rounded" />
+          <div className="h-8 bg-ember-up rounded w-1/3" />
+          <div className="h-32 bg-ember-up rounded" />
+          <div className="h-48 bg-ember-up rounded" />
         </div>
       ) : detail ? (
         <>
@@ -319,17 +319,17 @@ function LeadDetail({ leadSummary, onBack }) {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5 mb-1">
-                <h2 className="text-2xl font-bold text-white">{detail.name}</h2>
+                <h2 className="font-display font-bold text-chalk text-2xl">{detail.name}</h2>
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${STATUS_STYLES[detail.status] || STATUS_STYLES.new}`}>
                   {detail.status}
                 </span>
               </div>
-              <p className="text-gray-400 text-sm">{detail.role} · {detail.company}</p>
+              <p className="text-dust text-sm">{detail.role} · {detail.company}</p>
             </div>
             <button
               onClick={handleScore}
               disabled={scoring}
-              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors"
+              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-copper hover:bg-copper/90 disabled:opacity-50 disabled:cursor-not-allowed text-coal transition-colors"
             >
               {scoring ? (
                 <>
@@ -348,7 +348,7 @@ function LeadDetail({ leadSummary, onBack }) {
           )}
 
           {/* Info fields */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 p-5 rounded-xl border border-gray-800 bg-gray-900/30">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 p-5 rounded-xl border border-ember-up bg-ember/40">
             <Field label="Company" value={detail.company} />
             <Field label="Email" value={detail.email} />
             <Field label="Phone" value={detail.phone} />
@@ -359,8 +359,8 @@ function LeadDetail({ leadSummary, onBack }) {
 
           {/* Score breakdown */}
           {detail.score != null && breakdown && (
-            <div className="p-5 rounded-xl border border-gray-800 bg-gray-900/30">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">AI Score</h3>
+            <div className="p-5 rounded-xl border border-ember-up bg-ember/40">
+              <h3 className="text-xs font-semibold text-dust/60 uppercase tracking-wider mb-4">AI Score</h3>
               <div className="flex gap-6 items-start">
                 <ScoreRing score={detail.score} />
                 <div className="flex-1 space-y-3">
@@ -370,19 +370,19 @@ function LeadDetail({ leadSummary, onBack }) {
                 </div>
               </div>
               {breakdown.summary && (
-                <p className="mt-4 text-sm text-gray-400 leading-relaxed border-t border-gray-800 pt-4">{breakdown.summary}</p>
+                <p className="mt-4 text-sm text-dust leading-relaxed border-t border-ember-up pt-4">{breakdown.summary}</p>
               )}
             </div>
           )}
 
           {/* Next steps */}
           {nextStepsList.length > 0 && (
-            <div className="p-5 rounded-xl border border-gray-800 bg-gray-900/30">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Recommended Next Steps</h3>
+            <div className="p-5 rounded-xl border border-ember-up bg-ember/40">
+              <h3 className="text-xs font-semibold text-dust/60 uppercase tracking-wider mb-3">Recommended Next Steps</h3>
               <ol className="space-y-2">
                 {nextStepsList.map((step, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-gray-300">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 text-xs flex items-center justify-center font-medium mt-0.5">
+                  <li key={i} className="flex gap-3 text-sm text-chalk/80">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-copper/20 text-copper text-xs flex items-center justify-center font-medium mt-0.5">
                       {i + 1}
                     </span>
                     {step}
@@ -393,25 +393,25 @@ function LeadDetail({ leadSummary, onBack }) {
           )}
 
           {/* Activity timeline */}
-          <div className="p-5 rounded-xl border border-gray-800 bg-gray-900/30">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Interaction History</h3>
+          <div className="p-5 rounded-xl border border-ember-up bg-ember/40">
+            <h3 className="text-xs font-semibold text-dust/60 uppercase tracking-wider mb-4">Interaction History</h3>
             <div className="relative">
-              <div className="absolute left-4 top-0 bottom-0 w-px bg-gray-800" />
+              <div className="absolute left-4 top-0 bottom-0 w-px bg-ember-up" />
               <div className="space-y-5">
                 {detail.activities.map((a) => {
-                  const meta = ACTIVITY_ICONS[a.type] || { icon: '•', label: a.type, color: 'text-gray-400' };
+                  const meta = ACTIVITY_ICONS[a.type] || { icon: '•', label: a.type, color: 'text-dust' };
                   const date = new Date(a.occurred_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                   return (
                     <div key={a.id} className="flex gap-4 pl-1">
-                      <div className="relative z-10 w-6 h-6 flex-shrink-0 flex items-center justify-center bg-gray-900 text-base">
+                      <div className="relative z-10 w-6 h-6 flex-shrink-0 flex items-center justify-center bg-ember text-base">
                         {meta.icon}
                       </div>
                       <div className="flex-1 min-w-0 pb-1">
                         <div className="flex items-baseline gap-2 mb-0.5">
                           <span className={`text-xs font-medium ${meta.color}`}>{meta.label}</span>
-                          <span className="text-xs text-gray-600">{date}</span>
+                          <span className="text-xs text-dust/40">{date}</span>
                         </div>
-                        <p className="text-sm text-gray-400 leading-relaxed">{a.notes}</p>
+                        <p className="text-sm text-dust leading-relaxed">{a.notes}</p>
                       </div>
                     </div>
                   );
@@ -421,7 +421,7 @@ function LeadDetail({ leadSummary, onBack }) {
           </div>
         </>
       ) : (
-        <p className="text-gray-500 text-sm">Failed to load lead details.</p>
+        <p className="text-dust text-sm">Failed to load lead details.</p>
       )}
     </div>
   );

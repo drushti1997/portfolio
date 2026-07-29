@@ -39,6 +39,11 @@ ON CONFLICT (slug) DO NOTHING;
 
 UPDATE products SET status = 'live' WHERE slug = 'lead-generator';
 
+GRANT CONNECT ON DATABASE portfolio TO portfolio_user;
+GRANT USAGE ON SCHEMA public TO portfolio_user;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO portfolio_user;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO portfolio_user;
+
 -- ─── Lead Scoring Tables ─────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS leads (

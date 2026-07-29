@@ -1,55 +1,67 @@
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background grid */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(99,102,241,0.8) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(99,102,241,0.8) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
-        }}
-      />
+    <section className="bg-white border-b border-wire">
+      <div className="max-w-6xl mx-auto px-6 py-12 lg:py-16 grid lg:grid-cols-2 gap-12 items-center">
 
-      {/* Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
+        {/* Left: text */}
+        <div>
+          <h1 className="text-4xl lg:text-5xl font-bold text-ink leading-tight mb-4">
+            Hi, I'm Drushti Chauhan
+          </h1>
 
-      <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-medium mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-          Roofing & Construction AI
+          <p className="text-ash text-lg leading-relaxed mb-8 max-w-lg">
+            I build CRM, ERP, and enterprise solutions driven by AI — helping businesses
+            streamline operations, surface insights, and close more deals.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <a
+              href="#products"
+              className="px-5 py-2.5 bg-brand hover:bg-brand-hover text-white font-medium text-sm rounded-md transition-colors text-center"
+            >
+              See the products
+            </a>
+            <a
+              href="mailto:drishtichauhan707@gmail.com"
+              className="px-5 py-2.5 border border-wire hover:border-ash text-ink font-medium text-sm rounded-md transition-colors text-center"
+            >
+              Get in touch
+            </a>
+          </div>
         </div>
 
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-          <span className="text-white">Hi, I'm </span>
-          <span className="gradient-text">Drushti</span>
-        </h1>
-
-        <p className="text-lg sm:text-xl text-gray-400 leading-relaxed mb-10 max-w-xl mx-auto">
-          I build AI tools that help roofing material manufacturers find more contractors,
-          generate faster quotes, and close bigger deals.
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="#products"
-            className="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors w-full sm:w-auto text-center"
+        {/* Right: profile card */}
+        <div className="flex justify-center lg:justify-end">
+          <div
+            style={{
+              width: '280px',
+              borderRadius: '1.25rem',
+              overflow: 'hidden',
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 4px 24px 0 rgb(0 0 0 / 0.10)',
+              background: '#fff',
+            }}
           >
-            View Products
-          </a>
-          <a
-            href="mailto:hello@drushtichauhan.com"
-            className="px-6 py-3 rounded-lg border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white font-medium transition-colors w-full sm:w-auto text-center"
-          >
-            Get in touch
-          </a>
+            {/* Photo */}
+            <div style={{ width: '100%', height: '320px', overflow: 'hidden' }}>
+              <img
+                src="/drushti.png"
+                alt="Drushti Chauhan"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
+              />
+            </div>
+            {/* Name + title */}
+            <div style={{ padding: '1.25rem 1.5rem 1.5rem' }}>
+              <p style={{ fontWeight: 700, fontSize: '1.125rem', color: '#0F172A', marginBottom: '0.25rem' }}>
+                Drushti Chauhan
+              </p>
+              <p style={{ fontSize: '0.875rem', color: '#64748B' }}>
+                Enterprise AI Developer
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Scroll hint */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-600 text-xs">
-        <span>Scroll</span>
-        <div className="w-px h-8 bg-gradient-to-b from-gray-600 to-transparent" />
       </div>
     </section>
   );

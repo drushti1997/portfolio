@@ -8,7 +8,7 @@ export default function ProductCard({ product }) {
     <Link
       to={`/${slug}`}
       className="group relative flex flex-col p-6 bg-white rounded-xl border border-wire shadow-card card-hover cursor-pointer"
-      style={isLive ? { borderLeftColor: '#0566C8', borderLeftWidth: '3px' } : {}}
+      style={isLive ? { borderLeftColor: '#FF4800', borderLeftWidth: '3px' } : {}}
     >
       {/* Status */}
       <span

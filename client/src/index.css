@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 body {
-  background-color: #F3F5F8;
-  color: #0F172A;
-  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #F8F5EE;
+  color: #1A1A1A;
+  font-family: 'Lexend Deca', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

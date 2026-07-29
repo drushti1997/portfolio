@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Portfolio SaaS theme
-        brand: '#0566C8',
-        'brand-hover': '#044FA0',
-        'brand-soft': '#EFF6FF',
-        fog: '#F3F5F8',
-        ink: '#0F172A',
-        ash: '#64748B',
-        wire: '#E2E8F0',
+        // HubSpot color scheme
+        brand: '#FF4800',
+        'brand-hover': '#E03E00',
+        'brand-soft': '#FFF3EE',
+        fog: '#F8F5EE',
+        ink: '#1A1A1A',
+        ash: '#5A5A5A',
+        wire: '#E0D9CE',
         // LeadGeneratorApp internal dark theme
         coal: '#0D0C0A',
         ember: '#191510',
@@ -21,7 +21,7 @@ export default {
         dust: '#6B6057',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Lexend Deca', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         card: '0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08)',

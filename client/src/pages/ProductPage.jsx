@@ -30,7 +30,7 @@ export default function ProductPage() {
     <div className="min-h-screen bg-fog">
       <Header />
 
-      <main className="max-w-4xl mx-auto px-6 pt-20 pb-20">
+      <main className={`mx-auto px-6 pt-20 pb-20 ${product?.slug === 'lead-generator' ? 'max-w-6xl' : 'max-w-4xl'}`}>
         {loading && (
           <div className="animate-pulse space-y-4 pt-8">
             <div className="h-8 bg-white border border-wire rounded w-1/2" />
@@ -100,7 +100,7 @@ export default function ProductPage() {
 
             {/* App area */}
             {product.status === 'live' ? (
-              <div className="rounded-xl border border-wire bg-white shadow-card p-8 min-h-96">
+              <div className={`rounded-xl border border-wire shadow-card overflow-hidden min-h-96 ${product.slug === 'lead-generator' ? '' : 'bg-white p-8'}`}>
                 {product.slug === 'lead-generator' && <LeadGeneratorApp />}
               </div>
             ) : (

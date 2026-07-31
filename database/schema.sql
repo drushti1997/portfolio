@@ -309,3 +309,148 @@ JOIN (VALUES
   ('email_reply',      '"We have two luxury mixed-use projects in San Diego''s Little Italy neighborhood — both specify standing seam metal roofing. About 8,000 sq ft each. Can we set up a call this week?"',  NOW() - INTERVAL '3 days'),
   ('follow_up',        'Sent calendar invite for a discovery call + our standing seam metal roofing spec sheet and recent project photos from a comparable luxury development in LA.',                              NOW() - INTERVAL '1 day')
 ) AS a(type, notes, occurred_at) ON l.name = 'Jennifer Huang';
+
+-- ─── 10 Additional Leads ─────────────────────────────────────────────────────
+
+INSERT INTO leads (name, company, role, email, phone, source, status) VALUES
+  ('Sagar Naduvinkeri', 'Nexus Commercial Builders',      'Senior Procurement Manager', 's.naduvinkeri@nexuscommercial.com', '(972) 555-0318', 'Permit Filing (AI Detected)', 'hot'),
+  ('Maggie Klein',      'Klein & Associates Construction', 'Principal / Owner',          'm.klein@kleinassoc.com',            '(512) 555-0742', 'LinkedIn Outreach',           'warm'),
+  ('Derek Thornton',    'Thornton Real Estate Group',      'VP of Facilities',           'd.thornton@thorntonreg.com',        '(615) 555-0193', 'Referral (Apex Building)',    'warm'),
+  ('Aisha Patel',       'Pinnacle Urban Development',      'Director of Construction',   'a.patel@pinnacleurbdev.com',        '(303) 555-0867', 'Website Inquiry',             'new'),
+  ('Victor Reyes',      'Southwest Industrial Parks',      'Chief Estimator',            'v.reyes@swip.com',                 '(480) 555-0534', 'Permit Filing (AI Detected)', 'hot'),
+  ('Samantha Burke',    'Burke Property Management',       'Head of Facilities',         's.burke@burkeproperty.com',         '(704) 555-0921', 'Trade Show (IRE 2025)',       'converted'),
+  ('Omar Hassan',       'Crescent Building Co',            'VP of Procurement',          'o.hassan@crescentbuilding.com',     '(214) 555-0456', 'Cold Email',                  'cold'),
+  ('Lily Chen',         'Pacific Heights Development',     'Senior Project Manager',     'l.chen@pachightsdev.com',           '(415) 555-0283', 'Referral (Turner Roofing)',   'warm'),
+  ('Brandon Scott',     'Midwest Roofing Partners',        'Estimating Manager',         'b.scott@midwestroofingp.com',       '(314) 555-0619', 'Cold Email',                  'cold'),
+  ('Fatima Al-Rashid',  'Global Commercial Properties',   'Director of Procurement',    'f.alrashid@globalcommercialp.com',  '(312) 555-0774', 'LinkedIn Outreach',           'new')
+ON CONFLICT DO NOTHING;
+
+-- Sagar Naduvinkeri (lead 16) — hot, permit filing, fast-moving large project
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('email_sent',    'AI flagged a permit for a 70,000 sq ft logistics campus in Dallas by Nexus Commercial. Outreach to Sagar as procurement lead — project mobilizes in 5 weeks.',                         NOW() - INTERVAL '18 days'),
+  ('email_reply',   '"Perfect timing. Our current roofing supplier pushed lead times to 8 weeks — we can''t wait that long. Can you do 4 weeks for 70K sq ft TPO?" Replied within the hour.',             NOW() - INTERVAL '17 days'),
+  ('call',          '25-min call. Three-building logistics campus. Sagar needs delivery split: 40K sq ft in week 3, 30K sq ft in week 5. Our regional Dallas warehouse can hit both windows.',              NOW() - INTERVAL '15 days'),
+  ('demo',          'Sagar brought his roofing sub to our Dallas warehouse. Reviewed the 60-mil TPO inventory on hand. Sub approved the membrane and accessory kit. Sagar wants the quote by EOD.',        NOW() - INTERVAL '12 days'),
+  ('quote_sent',    'Submitted quote: 70,000 sq ft 60-mil TPO system — split delivery schedule confirmed. Total materials $308,000. Pricing valid 7 days given tight timeline.',                           NOW() - INTERVAL '11 days'),
+  ('email_reply',   '"Numbers work. Running it by the owner today. If approved, we need PO issued by Friday to lock the delivery slot." Highest urgency deal in the pipeline.',                             NOW() - INTERVAL '8 days'),
+  ('call',          'Owner approved the budget. Sagar confirmed PO is in final review with their CFO. Asked us to hold both delivery slots — gave verbal commitment.',                                      NOW() - INTERVAL '5 days'),
+  ('follow_up',     'Sent delivery slot hold confirmation and counter-signed scope letter. Sagar said PO will be issued Monday morning. Deal is effectively closed pending paperwork.',                     NOW() - INTERVAL '2 days')
+) AS a(type, notes, occurred_at) ON l.name = 'Sagar Naduvinkeri';
+
+-- Maggie Klein (lead 17) — warm, owner of mid-size contractor, evaluating supplier switch
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('linkedin_message', 'Connected with Maggie on LinkedIn after she posted about Klein & Associates winning three commercial contracts in the Austin metro totaling $12M in construction value.',              NOW() - INTERVAL '32 days'),
+  ('email_reply',      '"We self-perform roofing on most of our projects — about 8–10 commercial roofs per year. Our current material supplier has been inconsistent on quality. Happy to talk."',           NOW() - INTERVAL '29 days'),
+  ('call',             '40-min call with Maggie directly. She runs a tight operation — 22 employees, all commercial work. Wants a supplier who can do net-45, provide jobsite delivery, and hold warranty.', NOW() - INTERVAL '25 days'),
+  ('meeting',          'Met Maggie at their office in Austin. Walked through our TPO and modified bitumen lines. She''s done mostly mod-bit historically but is open to TPO on larger flat roofs.',          NOW() - INTERVAL '19 days'),
+  ('sample_request',   'Maggie requested samples of our SBS cap sheet, 60-mil TPO, and our walkway pad system. Said her lead foreman will review before the next project spec decision.',                  NOW() - INTERVAL '14 days'),
+  ('email_reply',      'Lead foreman approved the TPO sample quality. Maggie asked for a pricing sheet covering 10K–30K sq ft ranges so she can use it across multiple bids this quarter.',               NOW() - INTERVAL '8 days'),
+  ('follow_up',        'Sent tiered pricing sheet and introduced our dedicated contractor portal for reorder tracking. Maggie said she has a 14,000 sq ft re-roof bid going out next week and may use us.', NOW() - INTERVAL '3 days')
+) AS a(type, notes, occurred_at) ON l.name = 'Maggie Klein';
+
+-- Derek Thornton (lead 18) — warm, referral, large property portfolio
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('email_sent',    'Warm intro via referral from Apex Building Corp — Amanda Solis mentioned Derek manages roofing capital projects across Thornton''s 8-property commercial portfolio in Nashville.',       NOW() - INTERVAL '27 days'),
+  ('email_reply',   '"Amanda speaks highly of your materials. We have three roofs due for replacement this fiscal year — two office buildings and a strip mall. Let''s talk numbers."',                      NOW() - INTERVAL '24 days'),
+  ('call',          '30-min discovery call. Total scope: ~55,000 sq ft across three properties. Derek wants a single-source supplier for all three. Timeline spans Q3–Q4 this year.',                      NOW() - INTERVAL '20 days'),
+  ('meeting',       'Presented our portfolio supply program at Thornton''s Nashville HQ. Covered phased delivery scheduling, volume pricing tiers, and dedicated account management.',                       NOW() - INTERVAL '14 days'),
+  ('sample_request','Derek requested TPO samples for the two office buildings (flat roofs) and modified bitumen for the strip mall re-roof. Shipped overnight — his facilities team reviewing.',            NOW() - INTERVAL '9 days'),
+  ('follow_up',     'Check-in on sample review. Derek confirmed the TPO quality meets their spec. Waiting on the strip mall building owner to approve the mod-bit spec before requesting a formal quote.',  NOW() - INTERVAL '3 days')
+) AS a(type, notes, occurred_at) ON l.name = 'Derek Thornton';
+
+-- Aisha Patel (lead 19) — new, website inquiry, large pipeline
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('email_sent',    'Aisha submitted a bulk inquiry via our website — Pinnacle Urban is breaking ground on four mixed-use developments in Denver with a combined ~200,000 sq ft of flat and low-slope roofing.', NOW() - INTERVAL '3 days'),
+  ('email_reply',   '"We need a supplier who can scale with our pipeline and provide consistent quality across multiple GCs. We''re especially interested in your TPO and EPDM lines. Can we schedule a call?"',   NOW() - INTERVAL '1 day')
+) AS a(type, notes, occurred_at) ON l.name = 'Aisha Patel';
+
+-- Victor Reyes (lead 20) — hot, permit filing, urgent industrial project
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('email_sent',    'AI detected permit filings for a new 4-building industrial park in Scottsdale by Southwest Industrial Parks — 95,000 sq ft of flat roofing, groundbreaking in 6 weeks.',                NOW() - INTERVAL '21 days'),
+  ('email_reply',   '"Timing is critical. Our supplier for this project just told us they can''t hit our start date. What''s your fastest lead time for 95K sq ft of TPO?" Replied same day.',               NOW() - INTERVAL '20 days'),
+  ('call',          '20-min call. Victor needs phased delivery across 4 buildings over 10 weeks. We confirmed our Phoenix distribution center can handle it. He wants a site visit before committing.',        NOW() - INTERVAL '17 days'),
+  ('site_visit',    'Victor and the GC''s project manager walked our Phoenix facility. Confirmed inventory levels for the full TPO system. GC approved our loading dock access for just-in-time delivery.',   NOW() - INTERVAL '13 days'),
+  ('demo',          'Full product walkthrough with Victor''s roofing sub. Reviewed seam tape, termination details, and accessory kit compatibility. Sub confirmed our system matches their installation method.',NOW() - INTERVAL '10 days'),
+  ('quote_sent',    'Submitted 4-building phased quote: 95,000 sq ft 60-mil TPO system, $3.95/sq ft. Phased delivery weeks 2, 4, 7, 9. Total materials: $375,250. Pricing valid 10 days.',                  NOW() - INTERVAL '7 days'),
+  ('email_reply',   '"Pricing is competitive and the delivery plan works. Taking it to ownership for sign-off tomorrow. Expect PO by end of week."',                                                           NOW() - INTERVAL '4 days'),
+  ('follow_up',     'Victor confirmed ownership approved. PO is being drafted. Asked to confirm our insurance certificates are on file — sent immediately. Deal closing this week.',                           NOW() - INTERVAL '1 day')
+) AS a(type, notes, occurred_at) ON l.name = 'Victor Reyes';
+
+-- Samantha Burke (lead 21) — converted, signed 2-year supply agreement
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('email_sent',    'Follow-up from IRE 2025. Samantha visited our booth and asked specifically about our preferred-vendor program for property management companies.',                                        NOW() - INTERVAL '50 days'),
+  ('email_reply',   '"We manage 19 commercial properties in the Charlotte metro. We re-roof 4–5 per year. If your quality and lead times are consistent, we''d consider making you our primary supplier."',  NOW() - INTERVAL '47 days'),
+  ('call',          '35-min discovery call. Burke Property manages Class B and Class C commercial properties. Most roofs are TPO or BUR. Samantha is the sole decision-maker for all procurement.',          NOW() - INTERVAL '43 days'),
+  ('meeting',       'In-person meeting at Burke''s Charlotte office. Presented our preferred-vendor program: volume pricing, dedicated rep, 72-hour emergency fulfillment, net-45 terms.',                   NOW() - INTERVAL '37 days'),
+  ('sample_request','Samantha requested samples of our 45-mil and 60-mil TPO lines plus our EPDM membrane. She wants to standardize on one system across the entire portfolio.',                             NOW() - INTERVAL '32 days'),
+  ('email_reply',   'Materials committee approved the 60-mil TPO as their new standard. Samantha asked for a 2-year pricing agreement with locked-in rates and annual volume commitments.',                  NOW() - INTERVAL '25 days'),
+  ('quote_sent',    'Submitted 2-year preferred-vendor agreement: locked 60-mil TPO pricing at $4.05/sq ft through 2027, 10% volume rebate above 60,000 sq ft/year, dedicated account manager.',           NOW() - INTERVAL '18 days'),
+  ('meeting',       'Contract review with Samantha and Burke''s legal counsel. Minor revision to payment terms — agreed on net-45 with 1.5% early payment discount.',                                        NOW() - INTERVAL '11 days'),
+  ('email_reply',   'Contract signed by both parties. Samantha issued first PO: 22,000 sq ft TPO for their Uptown Charlotte office re-roof. Delivery confirmed for next month.',                            NOW() - INTERVAL '5 days'),
+  ('follow_up',     'Sent onboarding materials, introduced dedicated account manager, and set up Burke''s reorder portal access. Full 2-year agreement active. Flagship converted account.',                 NOW() - INTERVAL '2 days')
+) AS a(type, notes, occurred_at) ON l.name = 'Samantha Burke';
+
+-- Omar Hassan (lead 22) — cold, competitor locked in
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('email_sent',    'Cold outreach to Crescent Building Co after their announcement of a 65,000 sq ft office complex in Frisco, TX. Omar handles all roofing material procurement.',                         NOW() - INTERVAL '38 days'),
+  ('email_reply',   'Brief reply: "We have a long-standing relationship with our current supplier. Not looking to switch, but I''ll keep your info on file." Polite but non-committal.',                     NOW() - INTERVAL '35 days'),
+  ('follow_up',     'Sent a comparison one-pager highlighting our warranty terms vs industry standard and our 72-hr emergency fulfillment program. No response.',                                             NOW() - INTERVAL '22 days'),
+  ('follow_up',     'Final outreach: offered a no-commitment pilot on a small project to demonstrate quality. Still no reply. Will add to long-term nurture sequence.',                                       NOW() - INTERVAL '8 days')
+) AS a(type, notes, occurred_at) ON l.name = 'Omar Hassan';
+
+-- Lily Chen (lead 23) — warm, referral, multi-building mixed-use
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('email_sent',    'Warm intro from Turner Roofing — Lily is PM on a 3-building mixed-use development in San Francisco''s Mission District. Total roofing scope ~42,000 sq ft including green roof sections.', NOW() - INTERVAL '29 days'),
+  ('email_reply',   '"Turner spoke highly of your TPO quality and lead times. We have a tight construction schedule — Building 1 needs materials in 7 weeks. Can you handle it?"',                             NOW() - INTERVAL '26 days'),
+  ('call',          '30-min call. Building 1 is 16,000 sq ft flat TPO. Buildings 2 and 3 are 13,000 sq ft each with partial green roof assemblies over EPDM. Complex spec but manageable.',                  NOW() - INTERVAL '22 days'),
+  ('sample_request','Lily requested samples of our 60-mil EPDM (for green roof base), drainage mat, and TPO for Building 1. Also requested our green roof assembly technical guide.',                        NOW() - INTERVAL '17 days'),
+  ('email_reply',   'Architect reviewed samples and approved both the EPDM base and TPO specs. Lily asked for a phased quote covering all three buildings with Building 1 prioritized.',                     NOW() - INTERVAL '11 days'),
+  ('quote_sent',    'Submitted phased quote: Building 1 TPO $68,800 (week 7), Buildings 2+3 EPDM + drainage package $109,200 (weeks 12-14). Total: $178,000.',                                              NOW() - INTERVAL '6 days'),
+  ('follow_up',     'Lily confirmed Building 1 quote is approved internally. Buildings 2 and 3 are pending city permitting. Expects Building 1 PO within 10 days.',                                         NOW() - INTERVAL '2 days')
+) AS a(type, notes, occurred_at) ON l.name = 'Lily Chen';
+
+-- Brandon Scott (lead 24) — cold, brief interest then silent
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('email_sent',    'Cold outreach to Midwest Roofing Partners — Brandon oversees estimating for their commercial division, which does ~30 re-roofs per year across Missouri and Illinois.',                  NOW() - INTERVAL '42 days'),
+  ('email_reply',   '"We buy a lot of material. What''s your pricing on 60-mil TPO in volume? And do you have distribution in St. Louis?" Brief but showed some interest.',                                   NOW() - INTERVAL '39 days'),
+  ('call',          '15-min call. Brandon is price-driven — his current supplier gives him net-30 and stock at a local depot. He''s interested only if we can match pricing and local availability.',         NOW() - INTERVAL '35 days'),
+  ('follow_up',     'Sent St. Louis distribution capability confirmation and competitive volume pricing. Brandon said he''d "take a look." No response since.',                                               NOW() - INTERVAL '20 days'),
+  ('follow_up',     'Second follow-up with a contractor rebate program overview. No response. Likely price-anchored to current supplier.',                                                                    NOW() - INTERVAL '7 days')
+) AS a(type, notes, occurred_at) ON l.name = 'Brandon Scott';
+
+-- Fatima Al-Rashid (lead 25) — new, LinkedIn, large international portfolio
+INSERT INTO lead_activities (lead_id, type, notes, occurred_at)
+SELECT l.id, a.type, a.notes, a.occurred_at
+FROM leads l
+JOIN (VALUES
+  ('linkedin_message', 'Connected with Fatima on LinkedIn after Global Commercial Properties posted about their US expansion — 6 new commercial developments planned across Chicago, Houston, and Miami.',      NOW() - INTERVAL '5 days'),
+  ('email_reply',      '"We manage 40+ properties globally and are scaling our US portfolio significantly. We need a reliable domestic roofing supplier who can support multi-city projects. Let''s connect."',  NOW() - INTERVAL '3 days'),
+  ('follow_up',        'Sent an introduction to our national distribution network and multi-site account program. Proposed a discovery call this week to understand their US project pipeline.',                NOW() - INTERVAL '1 day')
+) AS a(type, notes, occurred_at) ON l.name = 'Fatima Al-Rashid';

@@ -222,6 +222,9 @@ RESPONSE FORMAT — when a lead is found, always reply in this exact format usin
 2. [Step two]
 3. [Step three]
 
+If the AI score is "Not yet scored", add this note on a new line at the very end:
+💡 This lead hasn't been scored yet. Click **Calculate AI Score** below to run the analysis.
+
 If the user asks about anything outside these duties, respond with: "I'm here to help with lead details, recent activities, and next steps for specific leads. Could you provide a lead's full name or email to get started?"
 
 Do not offer general sales advice, industry information, or engage with topics unrelated to the leads below.
@@ -237,7 +240,21 @@ ${leadsBlock}`;
 
     const reply = response.choices[0]?.message?.content;
     if (!reply) throw new Error('No response from AI');
-    res.json({ reply });
+
+    // Detect which lead the conversation is about so the frontend can offer scoring
+    const allText = messages.map(m => m.content).join(' ').toLowerCase();
+    const detectedLead = leadsResult.rows.find(lead => {
+      const name = lead.name.toLowerCase();
+      const email = (lead.email || '').toLowerCase();
+      return allText.includes(name) || (email && allText.includes(email));
+    });
+
+    res.json({
+      reply,
+      activeLead: detectedLead
+        ? { id: detectedLead.id, name: detectedLead.name, isScored: detectedLead.score != null }
+        : null,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'Chat failed' });

@@ -142,6 +142,8 @@ function Chatbot() {
   }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeLead, setActiveLead] = useState(null);
+  const [scoring, setScoring] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -163,10 +165,32 @@ function Chatbot() {
       });
       const data = await r.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply || data.error || 'Something went wrong.' }]);
+      if (data.activeLead) setActiveLead(data.activeLead);
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Failed to reach the AI assistant.' }]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const calculateScore = async () => {
+    if (!activeLead || scoring) return;
+    setScoring(true);
+    try {
+      const r = await fetch(`/api/leads/${activeLead.id}/score`, { method: 'POST' });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Scoring failed');
+      const score = data.score;
+      const summary = data.score_breakdown?.summary || '';
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `✅ **AI Score calculated!**\n\n**${activeLead.name}** scored **${score}/100**.\n\n${summary}\n\nThe full score breakdown and next steps are now visible on their lead profile.`,
+      }]);
+      setActiveLead(prev => ({ ...prev, isScored: true }));
+    } catch (e) {
+      setMessages(prev => [...prev, { role: 'assistant', content: `Failed to calculate score: ${e.message}` }]);
+    } finally {
+      setScoring(false);
     }
   };
 
@@ -219,6 +243,30 @@ function Chatbot() {
             )}
             <div ref={bottomRef} />
           </div>
+
+          {/* Score CTA */}
+          {activeLead && !activeLead.isScored && !loading && (
+            <div className="px-3 pt-2 pb-1 flex-shrink-0" style={{ background: '#F8F5EE' }}>
+              <button
+                onClick={calculateScore}
+                disabled={scoring}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white disabled:opacity-60 transition-colors"
+                style={{ background: '#FF4800' }}
+              >
+                {scoring ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"/>
+                    </svg>
+                    Calculating…
+                  </>
+                ) : (
+                  <>🧮 Calculate AI Score for {activeLead.name.split(' ')[0]}</>
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Input */}
           <div className="px-3 py-3 border-t border-wire bg-white flex-shrink-0">

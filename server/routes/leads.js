@@ -212,6 +212,7 @@ RESPONSE FORMAT — when a lead is found, always reply in this exact format usin
 **Role:** [Job Role]
 **Email:** [Email Address]
 **Status:** [Lead Status]
+**AI Score:** [score]/100 — or "Not yet scored" if no score exists
 
 **Latest Activity:**
 [Date] — [Activity Type]: [Notes]

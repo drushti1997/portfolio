@@ -5,7 +5,7 @@ const db = require('../db');
 router.get('/', async (req, res) => {
   try {
     const { rows } = await db.query(
-      'SELECT * FROM products ORDER BY created_at ASC'
+      'SELECT * FROM products ORDER BY CASE WHEN status = \'live\' THEN 0 ELSE 1 END, created_at ASC'
     );
     res.json(rows);
   } catch (err) {

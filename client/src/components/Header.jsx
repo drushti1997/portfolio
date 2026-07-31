@@ -31,12 +31,6 @@ export default function Header() {
           >
             LinkedIn
           </a>
-          <a
-            href="mailto:drishtichauhan707@gmail.com"
-            className="ml-3 px-4 py-1.5 bg-brand hover:bg-brand-hover text-white text-sm font-medium rounded-md transition-colors"
-          >
-            Contact
-          </a>
         </nav>
       </div>
     </header>

@@ -14,7 +14,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-ash text-lg leading-relaxed mb-10 max-w-md">
-            I build CRM, ERP, and enterprise solutions driven by AI — helping businesses
+            I build CRM, ERP, and enterprise AI solutions that help businesses
             streamline operations, surface insights, and close more deals.
           </p>
 

@@ -12,12 +12,12 @@ CREATE TABLE IF NOT EXISTS products (
 
 INSERT INTO products (name, slug, tagline, description, icon_emoji, tags) VALUES
   (
-    'AI Project Lead Finder',
+    'AI Lead Scorer',
     'lead-generator',
-    'Surface active roofing projects before your competitors do',
-    'Scans permit filings, construction starts, and project databases to identify commercial and industrial roofing opportunities — so your reps reach the right contractor before the bid closes.',
+    'Score your leads, know your next move, close faster',
+    'Gives your sales team instant AI-powered intelligence on every lead — scoring engagement, intent, and deal potential, surfacing the latest activity, and recommending the next best action. Ask the AI assistant about any lead by name or email and get a full briefing in seconds.',
     '🎯',
-    ARRAY['Lead Gen', 'Construction AI', 'Prospecting']
+    ARRAY['Sales AI', 'Lead Intelligence', 'CRM']
   ),
   (
     'Material Quote Copilot',
@@ -37,7 +37,15 @@ INSERT INTO products (name, slug, tagline, description, icon_emoji, tags) VALUES
   )
 ON CONFLICT (slug) DO NOTHING;
 
-UPDATE products SET status = 'live' WHERE slug = 'lead-generator';
+UPDATE products
+SET
+  name        = 'AI Lead Scorer',
+  tagline     = 'Score your leads, know your next move, close faster',
+  description = 'Gives your sales team instant AI-powered intelligence on every lead — scoring engagement, intent, and deal potential, surfacing the latest activity, and recommending the next best action. Ask the AI assistant about any lead by name or email and get a full briefing in seconds.',
+  icon_emoji  = '🎯',
+  tags        = ARRAY['Sales AI', 'Lead Intelligence', 'CRM'],
+  status      = 'live'
+WHERE slug = 'lead-generator';
 
 GRANT CONNECT ON DATABASE portfolio TO portfolio_user;
 GRANT USAGE ON SCHEMA public TO portfolio_user;

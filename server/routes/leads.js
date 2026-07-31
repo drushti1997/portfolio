@@ -160,7 +160,7 @@ router.post('/chat', async (req, res) => {
 
     const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-    const leadsBlock = leadsResult.rows.map(lead => {
+    const buildLeadBlock = (lead) => {
       const leadActs = (activitiesByLead[lead.id] || []).sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
       const latest = leadActs[0];
       const latestText = latest
@@ -174,38 +174,52 @@ router.post('/chat', async (req, res) => {
         : 'Score: Not yet scored';
       const nextSteps = lead.score_breakdown?.next_steps?.join('\n')
         || (lead.next_steps ? lead.next_steps.split('\n').filter(Boolean).join('\n') : 'Score this lead to get next steps');
-
-      return `---
-Name: ${lead.name} | Company: ${lead.company} | Role: ${lead.role}
+      return `Name: ${lead.name} | Company: ${lead.company} | Role: ${lead.role}
 Email: ${lead.email} | Phone: ${lead.phone || 'N/A'} | Status: ${lead.status}
 ${scoreSection}
 Next Steps: ${nextSteps}
 Latest Activity: ${latestText}
 Full History:
 ${historyLines}`;
-    }).join('\n\n');
+    };
+
+    // Case-insensitive lead matching done in code, not by the AI.
+    // Check the latest user message first; fall back to full conversation history.
+    const latestUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content?.toLowerCase() || '';
+    const fullHistory = messages.map(m => m.content).join(' ').toLowerCase();
+
+    const findMatch = (text) => leadsResult.rows.find(lead => {
+      const name = lead.name.toLowerCase();
+      const email = (lead.email || '').toLowerCase();
+      return text.includes(name) || (email && text.includes(email));
+    });
+
+    const serverMatchedLead = findMatch(latestUserMsg) || findMatch(fullHistory) || null;
+
+    const identifiedSection = serverMatchedLead
+      ? `IDENTIFIED LEAD — the system has already matched this lead from the conversation. Use this data to respond immediately. Do NOT ask for the name again.
+---
+${buildLeadBlock(serverMatchedLead)}
+---
+`
+      : '';
+
+    const leadsBlock = leadsResult.rows.map(lead => `---\n${buildLeadBlock(lead)}`).join('\n\n');
 
     const system = `You are a Sales AI Assistant for a roofing materials manufacturer.
 
-YOUR DUTIES — you may ONLY help with:
-1. Identifying a lead by their full name
-2. Sharing lead details: company name, job role, and contact info
-3. Summarizing the lead's most recent activity
-4. Recommending next actions to improve lead conversion
-
-HOW TO IDENTIFY A LEAD:
-The user can identify a lead in one of two ways — either is sufficient on its own, never require both:
-1. FULL NAME — must contain at least two words (first + last). "John Smith" is valid. "John" alone or "Smith" alone is NOT sufficient. Name matching is CASE INSENSITIVE — "james holloway", "James Holloway", and "JAMES HOLLOWAY" all refer to the same lead.
-2. EMAIL ADDRESS — any valid email (e.g. john@company.com) is sufficient on its own. Email matching is also case insensitive.
+${identifiedSection}YOUR DUTIES — you may ONLY help with:
+1. Sharing lead details: company name, job role, and contact info
+2. Summarizing the lead's most recent activity
+3. Recommending next actions to improve lead conversion
 
 CONVERSATION FLOW:
-- Step 1: Ask the user for the lead's full name OR email address.
-- Step 2: If the user gives only a single word (no email), ask once: "Could you please provide the lead's full name (first and last name) or their email address?"
-- Step 3: Once you receive a valid full name (two+ words) OR a valid email, immediately look up the lead and respond. Do NOT ask for confirmation or additional details.
-- Step 4: If no matching lead is found, say so clearly and ask them to double-check.
-- The user may ask about a different lead at any point — follow the same flow for the new identifier.
+- If an IDENTIFIED LEAD section appears above, respond immediately with that lead's details using the response format below. Do NOT ask for the name.
+- If no IDENTIFIED LEAD is present, ask the user for the lead's full name (first + last) or email address.
+- If the user gives only a single word with no email, ask once for the full name or email.
+- If the user asks about a different lead, the system will identify them in the next turn.
 
-RESPONSE FORMAT — when a lead is found, always reply in this exact format using bold (**) for labels:
+RESPONSE FORMAT — always use bold (**) for labels:
 
 **Name:** [Full Name]
 **Company:** [Company Name]
@@ -222,14 +236,12 @@ RESPONSE FORMAT — when a lead is found, always reply in this exact format usin
 2. [Step two]
 3. [Step three]
 
-If the AI score is "Not yet scored", add this note on a new line at the very end:
+If the AI score is "Not yet scored", add this note at the very end:
 💡 This lead hasn't been scored yet. Click **Calculate AI Score** below to run the analysis.
 
-If the user asks about anything outside these duties, respond with: "I'm here to help with lead details, recent activities, and next steps for specific leads. Could you provide a lead's full name or email to get started?"
+If asked about anything outside these duties, respond: "I'm here to help with lead details, recent activities, and next steps. Could you provide a lead's full name or email to get started?"
 
-Do not offer general sales advice, industry information, or engage with topics unrelated to the leads below.
-
-AVAILABLE LEADS:
+ALL LEADS (for reference):
 ${leadsBlock}`;
 
     const response = await getOpenAIClient().chat.completions.create({
@@ -241,18 +253,10 @@ ${leadsBlock}`;
     const reply = response.choices[0]?.message?.content;
     if (!reply) throw new Error('No response from AI');
 
-    // Detect which lead the conversation is about so the frontend can offer scoring
-    const allText = messages.map(m => m.content).join(' ').toLowerCase();
-    const detectedLead = leadsResult.rows.find(lead => {
-      const name = lead.name.toLowerCase();
-      const email = (lead.email || '').toLowerCase();
-      return allText.includes(name) || (email && allText.includes(email));
-    });
-
     res.json({
       reply,
-      activeLead: detectedLead
-        ? { id: detectedLead.id, name: detectedLead.name, isScored: detectedLead.score != null }
+      activeLead: serverMatchedLead
+        ? { id: serverMatchedLead.id, name: serverMatchedLead.name, isScored: serverMatchedLead.score != null }
         : null,
     });
   } catch (err) {

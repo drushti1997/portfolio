@@ -140,6 +140,109 @@ Return ONLY the JSON object.`;
   }
 });
 
+router.post('/chat', async (req, res) => {
+  try {
+    const { messages } = req.body;
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'Messages array is required' });
+    }
+
+    const [leadsResult, activitiesResult] = await Promise.all([
+      db.query('SELECT * FROM leads ORDER BY created_at ASC'),
+      db.query('SELECT * FROM lead_activities ORDER BY lead_id, occurred_at ASC'),
+    ]);
+
+    const activitiesByLead = {};
+    for (const act of activitiesResult.rows) {
+      if (!activitiesByLead[act.lead_id]) activitiesByLead[act.lead_id] = [];
+      activitiesByLead[act.lead_id].push(act);
+    }
+
+    const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    const leadsBlock = leadsResult.rows.map(lead => {
+      const leadActs = (activitiesByLead[lead.id] || []).sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
+      const latest = leadActs[0];
+      const latestText = latest
+        ? `[${formatDate(latest.occurred_at)}] ${latest.type.replace(/_/g, ' ')}: ${latest.notes}`
+        : 'No activities recorded';
+      const historyLines = leadActs
+        .map(a => `- [${formatDate(a.occurred_at)}] ${a.type.replace(/_/g, ' ').toUpperCase()}: ${a.notes}`)
+        .join('\n');
+      const scoreSection = lead.score != null
+        ? `Score: ${lead.score}/100\nSummary: ${lead.score_breakdown?.summary || 'N/A'}`
+        : 'Score: Not yet scored';
+      const nextSteps = lead.score_breakdown?.next_steps?.join('\n')
+        || (lead.next_steps ? lead.next_steps.split('\n').filter(Boolean).join('\n') : 'Score this lead to get next steps');
+
+      return `---
+Name: ${lead.name} | Company: ${lead.company} | Role: ${lead.role}
+Email: ${lead.email} | Phone: ${lead.phone || 'N/A'} | Status: ${lead.status}
+${scoreSection}
+Next Steps: ${nextSteps}
+Latest Activity: ${latestText}
+Full History:
+${historyLines}`;
+    }).join('\n\n');
+
+    const system = `You are a Sales AI Assistant for a roofing materials manufacturer.
+
+YOUR DUTIES — you may ONLY help with:
+1. Identifying a lead by their full name
+2. Sharing lead details: company name, job role, and contact info
+3. Summarizing the lead's most recent activity
+4. Recommending next actions to improve lead conversion
+
+HOW TO IDENTIFY A LEAD:
+The user can identify a lead in one of two ways — either is sufficient on its own, never require both:
+1. FULL NAME — must contain at least two words (first + last). "John Smith" is valid. "John" alone or "Smith" alone is NOT sufficient.
+2. EMAIL ADDRESS — any valid email (e.g. john@company.com) is sufficient on its own.
+
+CONVERSATION FLOW:
+- Step 1: Ask the user for the lead's full name OR email address.
+- Step 2: If the user gives only a single word (no email), ask once: "Could you please provide the lead's full name (first and last name) or their email address?"
+- Step 3: Once you receive a valid full name (two+ words) OR a valid email, immediately look up the lead and respond. Do NOT ask for confirmation or additional details.
+- Step 4: If no matching lead is found, say so clearly and ask them to double-check.
+- The user may ask about a different lead at any point — follow the same flow for the new identifier.
+
+RESPONSE FORMAT — when a lead is found, always reply in this exact format using bold (**) for labels:
+
+**Name:** [Full Name]
+**Company:** [Company Name]
+**Role:** [Job Role]
+**Email:** [Email Address]
+**Status:** [Lead Status]
+
+**Latest Activity:**
+[Date] — [Activity Type]: [Notes]
+
+**Recommended Next Steps:**
+1. [Step one]
+2. [Step two]
+3. [Step three]
+
+If the user asks about anything outside these duties, respond with: "I'm here to help with lead details, recent activities, and next steps for specific leads. Could you provide a lead's full name or email to get started?"
+
+Do not offer general sales advice, industry information, or engage with topics unrelated to the leads below.
+
+AVAILABLE LEADS:
+${leadsBlock}`;
+
+    const response = await getOpenAIClient().chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 500,
+      messages: [{ role: 'system', content: system }, ...messages],
+    });
+
+    const reply = response.choices[0]?.message?.content;
+    if (!reply) throw new Error('No response from AI');
+    res.json({ reply });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message || 'Chat failed' });
+  }
+});
+
 router.post('/:id/chat', async (req, res) => {
   try {
     const { id } = req.params;

@@ -124,38 +124,42 @@ function FactorBar({ label, score, reason }) {
 
 // ── Chatbot ───────────────────────────────────────────────────────────────────
 
-function Chatbot({ lead }) {
+function renderMarkdown(text) {
+  const html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br/>');
+  return { __html: html };
+}
+
+function Chatbot() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([{
+    role: 'assistant',
+    content: "Hi! I'm your Sales AI Assistant. Which lead would you like information on? You can provide their full name or email address.",
+  }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
-
-  useEffect(() => {
-    setMessages([{
-      role: 'assistant',
-      content: lead
-        ? `Hi! Ask me about ${lead.name}'s latest activity, their AI score, or what to do next.`
-        : 'Hi! Open a lead to start asking questions about them.',
-    }]);
-    setInput('');
-  }, [lead?.id]);
 
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, open]);
 
   const send = async () => {
-    if (!input.trim() || loading || !lead) return;
+    if (!input.trim() || loading) return;
     const text = input.trim();
-    setMessages(prev => [...prev, { role: 'user', content: text }]);
+    const newMessages = [...messages, { role: 'user', content: text }];
+    setMessages(newMessages);
     setInput('');
     setLoading(true);
     try {
-      const r = await fetch(`/api/leads/${lead.id}/chat`, {
+      const r = await fetch('/api/leads/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ messages: newMessages }),
       });
       const data = await r.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply || data.error || 'Something went wrong.' }]);
@@ -176,10 +180,7 @@ function Chatbot({ lead }) {
               <span className="text-2xl">🤖</span>
               <div>
                 <p className="text-sm font-bold text-white">Sales AI Assistant</p>
-                {lead
-                  ? <p className="text-xs text-white/80">{lead.name} · {lead.company}</p>
-                  : <p className="text-xs text-white/70">Select a lead to begin</p>
-                }
+                <p className="text-xs text-white/70">Lead Information</p>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white text-2xl leading-none font-light">×</button>
@@ -192,13 +193,16 @@ function Chatbot({ lead }) {
                 {m.role === 'assistant' && (
                   <span className="text-base mr-2 flex-shrink-0 mt-1">🤖</span>
                 )}
-                <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                  m.role === 'user'
-                    ? 'text-white font-medium rounded-br-sm'
-                    : 'bg-white text-ink border border-wire rounded-bl-sm shadow-sm'
-                }`} style={m.role === 'user' ? { background: '#FF4800' } : {}}>
-                  {m.content}
-                </div>
+                {m.role === 'user' ? (
+                  <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed text-white font-medium rounded-br-sm" style={{ background: '#FF4800' }}>
+                    {m.content}
+                  </div>
+                ) : (
+                  <div
+                    className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed bg-white text-ink border border-wire rounded-bl-sm shadow-sm"
+                    dangerouslySetInnerHTML={renderMarkdown(m.content)}
+                  />
+                )}
               </div>
             ))}
             {loading && (
@@ -224,14 +228,13 @@ function Chatbot({ lead }) {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && send()}
-                placeholder={lead ? 'Ask about this lead…' : 'Select a lead first'}
-                disabled={!lead || loading}
+                placeholder="Type a message…"
+                disabled={loading}
                 className="flex-1 bg-fog border border-wire rounded-xl px-3 py-2 text-sm text-ink placeholder-ash/60 focus:outline-none disabled:opacity-40 transition-colors"
-                style={{ '--tw-ring-color': '#FF4800' }}
               />
               <button
                 onClick={send}
-                disabled={!lead || !input.trim() || loading}
+                disabled={!input.trim() || loading}
                 className="px-4 py-2 rounded-xl text-white text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 style={{ background: '#FF4800' }}
               >
@@ -747,7 +750,7 @@ export default function LeadGeneratorApp() {
           onSelect={setSelectedLead}
         />
       )}
-      <Chatbot lead={selectedLead} />
+      <Chatbot />
     </>
   );
 }

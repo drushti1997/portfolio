@@ -1,0 +1,26 @@
+name: Diagnose DB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH Diagnostic
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "=== Container status ==="
+            docker ps --format "table {{.Names}}\t{{.Status}}"
+            echo "=== Server logs (last 40) ==="
+            docker logs drish_portfolio_server --tail 40 2>&1
+            echo "=== DB extensions ==="
+            docker exec drish_portfolio_postgres psql -U portfolio_user -d portfolio -c "\dx" 2>&1 || true
+            echo "=== DB tables ==="
+            docker exec drish_portfolio_postgres psql -U portfolio_user -d portfolio -c "\dt" 2>&1 || true
+            echo "=== rag_documents columns ==="
+            docker exec drish_portfolio_postgres psql -U portfolio_user -d portfolio -c "\d rag_documents" 2>&1 || true

@@ -153,13 +153,28 @@ async function parseFile(file) {
 
 // ── Embedding ─────────────────────────────────────────────────────────────────
 
-async function embedText(text) {
+async function embedBatch(texts) {
   const openai = getOpenAIClient();
-  const response = await openai.embeddings.create({
-    model: 'text-embedding-3-small',
-    input: text.slice(0, 32000),
-  });
-  return response.data[0].embedding;
+  const BATCH_SIZE = 512; // well under OpenAI's 2048 limit; each batch ~1 API call
+  const allEmbeddings = [];
+
+  for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+    const batch = texts.slice(i, i + BATCH_SIZE).map(t => t.slice(0, 32000));
+    const response = await openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: batch,
+    });
+    // API returns results in index order but sort to be safe
+    const sorted = [...response.data].sort((a, b) => a.index - b.index);
+    allEmbeddings.push(...sorted.map(d => d.embedding));
+  }
+
+  return allEmbeddings;
+}
+
+async function embedText(text) {
+  const [embedding] = await embedBatch([text]);
+  return embedding;
 }
 
 // ── Vector math ───────────────────────────────────────────────────────────────
@@ -270,14 +285,15 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     await fsPromises.writeFile(path.join(UPLOADS_DIR, fileName), req.file.buffer);
     await db.query('UPDATE rag_documents SET file_path = $1 WHERE id = $2', [fileName, doc.id]);
 
-    // Embed chunks sequentially (avoids rate-limit bursts)
+    // Batch-embed all chunks in one API call (avoids Cloudflare's 100s timeout)
+    const embeddings = await embedBatch(chunksWithPages.map(c => c.content));
+
     for (let i = 0; i < chunksWithPages.length; i++) {
       const { content, page } = chunksWithPages[i];
-      const embedding = await embedText(content);
       await db.query(
         `INSERT INTO rag_chunks (document_id, chunk_index, content, token_count, page_number, embedding)
          VALUES ($1, $2, $3, $4, $5, $6::vector)`,
-        [doc.id, i, content, Math.ceil(content.length / 4), page, JSON.stringify(embedding)]
+        [doc.id, i, content, Math.ceil(content.length / 4), page, JSON.stringify(embeddings[i])]
       );
     }
 

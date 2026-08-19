@@ -36,6 +36,18 @@ jobs:
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             ENVEOF
 
+      - name: Configure system nginx upload limit
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # System nginx (nginx/1.18.0 Ubuntu) proxies to Docker — needs its own body limit
+            echo "client_max_body_size 50M;" > /etc/nginx/conf.d/upload_limit.conf
+            nginx -t && systemctl reload nginx
+            echo "System nginx reloaded with 50M upload limit"
+
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1
         with:

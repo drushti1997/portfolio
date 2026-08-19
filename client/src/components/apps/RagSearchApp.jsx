@@ -610,8 +610,13 @@ export default function RagSearchApp() {
       form.append('file', file);
       const r = await fetch('/api/documents/upload', { method: 'POST', body: form });
       if (!r.ok) {
-        const err = await r.json().catch(() => ({}));
-        throw new Error(err.error || 'Upload failed');
+        const bodyText = await r.text().catch(() => '');
+        let message = `Upload failed (HTTP ${r.status})`;
+        try {
+          const parsed = JSON.parse(bodyText);
+          if (parsed.error) message = parsed.error;
+        } catch {}
+        throw new Error(message);
       }
       const data = await r.json();
       setUploadStep('storing');

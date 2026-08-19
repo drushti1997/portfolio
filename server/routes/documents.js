@@ -104,7 +104,19 @@ async function getPdfjs() {
 
 async function parsePDFWithPages(buffer) {
   const pdfjs = await getPdfjs();
-  const doc = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;
+  let doc;
+  try {
+    doc = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;
+  } catch (err) {
+    if (err?.name === 'PasswordException') {
+      throw new Error('PDF is password-protected — please upload an unprotected version');
+    }
+    if (err?.name === 'InvalidPDFException') {
+      throw new Error('PDF appears to be corrupted or in an unsupported format');
+    }
+    // Re-throw with a message if original has none
+    throw new Error(err?.message || `PDF parsing failed (${err?.name || 'unknown error'})`);
+  }
 
   const result = [];
   for (let pageNum = 1; pageNum <= doc.numPages; pageNum++) {
@@ -299,8 +311,13 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
     res.status(201).json({ document: { ...doc, file_path: fileName } });
   } catch (err) {
-    console.error('documents POST /upload error:', err);
-    res.status(500).json({ error: err.message || 'Upload failed' });
+    // Stringify the full error so server logs show root cause
+    const message = (err instanceof Error && err.message)
+      ? err.message
+      : (typeof err === 'string' ? err : null)
+      || `${err?.name || 'Error'} (no message)`;
+    console.error('documents POST /upload error:', { name: err?.name, message, code: err?.code, stack: err?.stack?.slice(0, 300) });
+    res.status(500).json({ error: message });
   }
 });
 

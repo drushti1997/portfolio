@@ -47,3 +47,66 @@ jobs:
             docker compose down || true
             docker compose up -d --build
             echo "Deployment complete"
+
+      - name: Run DB migrations
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Wait for Postgres to be ready
+            for i in $(seq 1 20); do
+              docker exec drish_portfolio_postgres pg_isready -U portfolio_user && break
+              echo "Waiting for postgres... ($i)"
+              sleep 3
+            done
+
+            # Idempotent migrations — safe to run on every deploy
+            docker exec drish_portfolio_postgres psql -U portfolio_user -d portfolio << 'SQLEOF'
+            CREATE EXTENSION IF NOT EXISTS vector;
+
+            CREATE TABLE IF NOT EXISTS rag_documents (
+              id          SERIAL PRIMARY KEY,
+              name        VARCHAR(500) NOT NULL,
+              file_type   VARCHAR(20)  NOT NULL,
+              chunk_count INTEGER      NOT NULL DEFAULT 0,
+              char_count  INTEGER      NOT NULL DEFAULT 0,
+              file_path   VARCHAR(500),
+              created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS rag_chunks (
+              id           SERIAL PRIMARY KEY,
+              document_id  INTEGER  NOT NULL REFERENCES rag_documents(id) ON DELETE CASCADE,
+              chunk_index  INTEGER  NOT NULL,
+              content      TEXT     NOT NULL,
+              token_count  INTEGER,
+              page_number  INTEGER  DEFAULT 1,
+              embedding    vector(1536),
+              created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS rag_chunks_embedding_idx
+              ON rag_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+
+            CREATE INDEX IF NOT EXISTS rag_chunks_document_idx
+              ON rag_chunks (document_id, chunk_index);
+
+            GRANT ALL ON rag_documents TO portfolio_user;
+            GRANT ALL ON rag_chunks    TO portfolio_user;
+            GRANT ALL ON SEQUENCE rag_documents_id_seq TO portfolio_user;
+            GRANT ALL ON SEQUENCE rag_chunks_id_seq    TO portfolio_user;
+
+            INSERT INTO products (name, slug, tagline, description, icon_emoji, tags, status)
+            VALUES (
+              'Document Search (RAG)',
+              'rag-search',
+              'Ask questions across your documents, get cited answers in seconds',
+              'Upload PDFs, DOCX, or text files. The pipeline chunks and embeds each document using OpenAI text-embedding-3-small, stores vectors in pgvector, and retrieves semantically relevant chunks to answer your natural language questions using GPT-4o-mini — with exact source citations.',
+              '🔍',
+              ARRAY['RAG', 'Vector Search', 'Document AI'],
+              'live'
+            ) ON CONFLICT (slug) DO NOTHING;
+            SQLEOF
+            echo "DB migrations complete"

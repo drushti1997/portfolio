@@ -62,8 +62,8 @@ jobs:
               sleep 3
             done
 
-            # Idempotent migrations — safe to run on every deploy
-            docker exec drish_portfolio_postgres psql -U portfolio_user -d portfolio << 'SQLEOF'
+            # Write SQL to a host file so it pipes cleanly through docker exec -i
+            cat > /tmp/migrate.sql << 'MIGEOF'
             CREATE EXTENSION IF NOT EXISTS vector;
 
             CREATE TABLE IF NOT EXISTS rag_documents (
@@ -76,6 +76,8 @@ jobs:
               created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
             );
 
+            ALTER TABLE rag_documents ADD COLUMN IF NOT EXISTS file_path VARCHAR(500);
+
             CREATE TABLE IF NOT EXISTS rag_chunks (
               id           SERIAL PRIMARY KEY,
               document_id  INTEGER  NOT NULL REFERENCES rag_documents(id) ON DELETE CASCADE,
@@ -87,6 +89,8 @@ jobs:
               created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
+            ALTER TABLE rag_chunks ADD COLUMN IF NOT EXISTS page_number INTEGER DEFAULT 1;
+
             CREATE INDEX IF NOT EXISTS rag_chunks_embedding_idx
               ON rag_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
 
@@ -95,18 +99,20 @@ jobs:
 
             GRANT ALL ON rag_documents TO portfolio_user;
             GRANT ALL ON rag_chunks    TO portfolio_user;
-            GRANT ALL ON SEQUENCE rag_documents_id_seq TO portfolio_user;
-            GRANT ALL ON SEQUENCE rag_chunks_id_seq    TO portfolio_user;
+            GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO portfolio_user;
 
             INSERT INTO products (name, slug, tagline, description, icon_emoji, tags, status)
             VALUES (
               'Document Search (RAG)',
               'rag-search',
               'Ask questions across your documents, get cited answers in seconds',
-              'Upload PDFs, DOCX, or text files. The pipeline chunks and embeds each document using OpenAI text-embedding-3-small, stores vectors in pgvector, and retrieves semantically relevant chunks to answer your natural language questions using GPT-4o-mini — with exact source citations.',
+              'Upload PDFs, DOCX, or text files. The pipeline chunks and embeds each document using OpenAI text-embedding-3-small, stores vectors in pgvector, and retrieves semantically relevant chunks to answer your natural language questions using GPT-4o-mini - with exact source citations.',
               '🔍',
               ARRAY['RAG', 'Vector Search', 'Document AI'],
               'live'
             ) ON CONFLICT (slug) DO NOTHING;
-            SQLEOF
-            echo "DB migrations complete"
+            MIGEOF
+
+            echo "=== Running migrations ==="
+            docker exec -i drish_portfolio_postgres psql -U portfolio_user -d portfolio < /tmp/migrate.sql
+            echo "=== Migration output above. Done ==="

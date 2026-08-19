@@ -454,3 +454,62 @@ JOIN (VALUES
   ('email_reply',      '"We manage 40+ properties globally and are scaling our US portfolio significantly. We need a reliable domestic roofing supplier who can support multi-city projects. Let''s connect."',  NOW() - INTERVAL '3 days'),
   ('follow_up',        'Sent an introduction to our national distribution network and multi-site account program. Proposed a discovery call this week to understand their US project pipeline.',                NOW() - INTERVAL '1 day')
 ) AS a(type, notes, occurred_at) ON l.name = 'Fatima Al-Rashid';
+
+-- ─── pgvector Extension ───────────────────────────────────────────────────────
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- ─── RAG Product Entry ────────────────────────────────────────────────────────
+INSERT INTO products (name, slug, tagline, description, icon_emoji, tags, status)
+VALUES (
+  'Document Search (RAG)',
+  'rag-search',
+  'Ask questions across your documents, get cited answers in seconds',
+  'Upload PDFs, DOCX, or text files. The pipeline chunks and embeds each document using OpenAI text-embedding-3-small, stores vectors in pgvector, and retrieves semantically relevant chunks to answer your natural language questions using GPT-4o — with exact source citations.',
+  '🔍',
+  ARRAY['RAG', 'Vector Search', 'Document AI'],
+  'live'
+) ON CONFLICT (slug) DO NOTHING;
+
+UPDATE products
+SET
+  name        = 'Document Search (RAG)',
+  tagline     = 'Ask questions across your documents, get cited answers in seconds',
+  description = 'Upload PDFs, DOCX, or text files. The pipeline chunks and embeds each document using OpenAI text-embedding-3-small, stores vectors in pgvector, and retrieves semantically relevant chunks to answer your natural language questions using GPT-4o — with exact source citations.',
+  icon_emoji  = '🔍',
+  tags        = ARRAY['RAG', 'Vector Search', 'Document AI'],
+  status      = 'live'
+WHERE slug = 'rag-search';
+
+-- ─── RAG Tables ───────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS rag_documents (
+  id          SERIAL PRIMARY KEY,
+  name        VARCHAR(500) NOT NULL,
+  file_type   VARCHAR(20)  NOT NULL,
+  chunk_count INTEGER      NOT NULL DEFAULT 0,
+  char_count  INTEGER      NOT NULL DEFAULT 0,
+  file_path   VARCHAR(500),
+  created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS rag_chunks (
+  id           SERIAL PRIMARY KEY,
+  document_id  INTEGER  NOT NULL REFERENCES rag_documents(id) ON DELETE CASCADE,
+  chunk_index  INTEGER  NOT NULL,
+  content      TEXT     NOT NULL,
+  token_count  INTEGER,
+  page_number  INTEGER  DEFAULT 1,
+  embedding    vector(1536),
+  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- IVFFlat index: ORDER BY <=> LIMIT N triggers this; lists=100 handles thousands of vectors
+CREATE INDEX IF NOT EXISTS rag_chunks_embedding_idx
+  ON rag_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+
+CREATE INDEX IF NOT EXISTS rag_chunks_document_idx
+  ON rag_chunks (document_id, chunk_index);
+
+GRANT ALL ON rag_documents TO portfolio_user;
+GRANT ALL ON rag_chunks TO portfolio_user;
+GRANT ALL ON SEQUENCE rag_documents_id_seq TO portfolio_user;
+GRANT ALL ON SEQUENCE rag_chunks_id_seq TO portfolio_user;

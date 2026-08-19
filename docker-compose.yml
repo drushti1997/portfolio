@@ -31,6 +31,8 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     expose:
       - '3001'
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       - postgres
     restart: unless-stopped
@@ -38,7 +40,7 @@ services:
       - portfolio_net
 
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: drish_portfolio_postgres
     environment:
       POSTGRES_DB: portfolio
@@ -53,6 +55,8 @@ services:
 
 volumes:
   pg_data:
+    driver: local
+  uploads_data:
     driver: local
 
 networks:

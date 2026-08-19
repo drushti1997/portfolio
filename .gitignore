@@ -6,3 +6,8 @@ dist/
 *.log
 .DS_Store
 .claude/
+server/uploads/
+demo_docs/
+client/client/
+PORTFOLIO_BRIEF.md
+!server/uploads/.gitkeep

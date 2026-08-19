@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LeadGeneratorApp from '../components/apps/LeadGeneratorApp';
+import RagSearchApp from '../components/apps/RagSearchApp';
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -30,7 +31,7 @@ export default function ProductPage() {
     <div className="min-h-screen bg-fog">
       <Header />
 
-      <main className={`mx-auto px-6 pt-20 pb-20 ${product?.slug === 'lead-generator' ? 'max-w-6xl' : 'max-w-4xl'}`}>
+      <main className={`mx-auto px-6 pt-20 pb-20 ${['lead-generator', 'rag-search'].includes(product?.slug) ? 'max-w-6xl' : 'max-w-4xl'}`}>
         {loading && (
           <div className="animate-pulse space-y-4 pt-8">
             <div className="h-8 bg-white border border-wire rounded w-1/2" />
@@ -100,8 +101,9 @@ export default function ProductPage() {
 
             {/* App area */}
             {product.status === 'live' ? (
-              <div className={`rounded-xl border border-wire shadow-card overflow-hidden min-h-96 ${product.slug === 'lead-generator' ? '' : 'bg-white p-8'}`}>
+              <div className={`rounded-xl border border-wire shadow-card overflow-hidden min-h-96 ${['lead-generator', 'rag-search'].includes(product.slug) ? '' : 'bg-white p-8'}`}>
                 {product.slug === 'lead-generator' && <LeadGeneratorApp />}
+                {product.slug === 'rag-search' && <RagSearchApp />}
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-wire bg-white p-12 text-center">
